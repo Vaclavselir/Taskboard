@@ -25,6 +25,7 @@ builder.Services.AddSingleton<ITaskRepository>(_ => new JsonRepository(@"G:\task
 builder.Services.AddScoped<CreateTask>();
 builder.Services.AddScoped<ChangePriority>();
 builder.Services.AddScoped<ChangeStatus>();
+builder.Services.AddScoped<DeleteTask>();
 
 builder.Services.Configure<KeyOptions>(builder.Configuration.GetSection(KeyOptions.SectionName));
 builder.Services.AddTransient<KeyMiddleware>();

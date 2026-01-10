@@ -20,18 +20,20 @@ public class TasksController : ControllerBase
     private readonly CreateTask _create;
     private readonly ChangePriority _priority;
     private readonly ChangeStatus _status;
+    private readonly DeleteTask _delete;
 
-    public TasksController(ITaskRepository repo, CreateTask create, ChangePriority priority, ChangeStatus status)
+    public TasksController(ITaskRepository repo, CreateTask create, ChangePriority priority, ChangeStatus status, DeleteTask delete)
     {
         
         _repo = repo;
         _create = create;
         _priority = priority;
         _status = status;
+        _delete = delete;
 
     }
 
-
+    /*
     [HttpGet]
     public IActionResult GetAll()
     {
@@ -45,9 +47,10 @@ public class TasksController : ControllerBase
         return Ok(dtoList);
 
     }
+    */
 
     [HttpGet("{id:guid}")]
-    public IActionResult GetById([FromRoute] Guid id)
+    public ActionResult<IEnumerable<TaskDto>> GetById([FromRoute] Guid id)
     {
         
         var task = _repo.GetById(id);
@@ -63,6 +66,60 @@ public class TasksController : ControllerBase
         }
 
         return Ok(task.ToDto());
+
+    }
+
+    [HttpGet]
+    public  ActionResult<IEnumerable<TaskDto>> GetByTask([FromQuery] Priority? priority, [FromQuery] Status? status, [FromQuery] List<string>? tags)
+    {
+        
+        if (priority is not null &&  !Enum.IsDefined<Priority>(priority.Value))
+        {
+
+            return BadRequest(new ProblemDetails
+            {
+
+                Title = "Invalid priority",
+
+                Detail = $"Unknown priority '{priority}'.",
+
+                Status = StatusCodes.Status400BadRequest
+
+            });
+
+        }
+
+        if (status is not null &&  !Enum.IsDefined<Status>(status.Value))
+        {
+
+            return BadRequest(new ProblemDetails
+            {
+
+                Title = "Invalid status",
+
+                Detail = $"Unknown status '{status}'.",
+
+                Status = StatusCodes.Status400BadRequest
+                
+            });
+
+        }
+
+        tags = tags?
+            .Where(t => !string.IsNullOrWhiteSpace(t))
+            .Select(t => t.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (tags is { Count: 0 })
+            tags = null;
+
+
+        var tasks = _repo.GetByTask(priority, status, tags);
+
+        var result = tasks.Select(t => t.ToDto()).ToList();
+
+        return Ok(result);
 
     }
 
@@ -151,5 +208,26 @@ public class TasksController : ControllerBase
         }
 
         }
+
+    [HttpDelete("{id:guid}")]
+    public IActionResult Delete(Guid id)
+    {
+        
+        try
+        {
+            _delete.Delete(id);
+            return NoContent(); 
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Task not found",
+                Detail = ex.Message,
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
+    }
 
 }
