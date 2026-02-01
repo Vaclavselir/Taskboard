@@ -1,23 +1,26 @@
 
 using TaskBoard.Domain;
-using TaskBoard.Application.Services;
 
 namespace TaskBoard.Api.Dtos.Services;
 
-public sealed record class UpdateTaskRequest
-(
 
-    string? Title,
+public sealed class UpdateTaskRequest
+{
 
-    string? Description,
+    public string? Title { get; init; }
 
-    DateTime? DueDate,
+    public string? Description { get; init; }
 
-    string? Status,
+    public DateTime? DueDate { get; init; }
 
-    string? Priority
+    public Status? Status { get; init; }
+    
+    public Priority? Priority { get; init; }
 
-);
+}
+
+
+
 
 
 
