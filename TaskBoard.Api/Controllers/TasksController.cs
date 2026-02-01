@@ -1,13 +1,13 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
-using TaskBoard.Infrastructure.Persistence;
 using TaskBoard.Application.Abstractions;
 using TaskBoard.Api.Dtos;
 using TaskBoard.Api.Dtos.Services;
 using TaskBoard.Api.Mappers;
 using TaskBoard.Application.Services;
-using TaskBoard.Domain;
+using TaskBoard.Api.Helpers;
 namespace TaskBoard.Api.Controllers;
+
 
 
 
@@ -69,12 +69,20 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<TaskDto>> GetByTask([FromQuery] Priority? priority, [FromQuery]  Status? status, [FromQuery]  List<string>? tags)
+    public ActionResult<PagedResult<TaskDto>> GetByTask([FromQuery] GetTaskQuery q)
     {
 
-        var tasks = _repo.GetByTask(priority, status, tags);
+        if (q.PageNumber < 1) 
+            throw new ArgumentException("Page number must be >= 1.");
 
-        var result = tasks.Select(t => t.ToDto()).ToList();
+        if (q.PageSize < 1 || q.PageSize > 100) 
+            throw new ArgumentException("Page size must be 1..100.");
+
+        var page = _repo.GetByTask(q.Priority, q.Status, q.Tags, q.PageNumber, q.PageSize);
+
+        var items = page.Items.Select(t => t.ToDto()).ToList();
+
+        var result = new PagedResult<TaskDto>(items, q.PageNumber, q.PageSize, page.TotalCount);
 
         return Ok(result);
 
@@ -87,7 +95,7 @@ public class TasksController : ControllerBase
         
         var id = _create.Create(req.ToCommand());
 
-        return Created($"/api/tasks/{id}", new { id });
+        return CreatedAtAction($"/api/tasks/{id}", new { id });
 
     }
 
@@ -104,7 +112,6 @@ public class TasksController : ControllerBase
             newPriority: body.Priority
         );
 
-    
         return NoContent();
 
     }

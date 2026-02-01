@@ -58,7 +58,7 @@ public sealed class JsonRepository : ITaskRepository
 
     }
 
-    public IReadOnlyList<TaskItem> GetByTask(Priority? priority, Status? status, IReadOnlyCollection<string>? tags)
+    public Paged<TaskItem> GetByTask(Priority? priority, Status? status, IReadOnlyCollection<string>? tags, int pageNumber, int pageSize)
     {
         
         lock (_gate)
@@ -94,7 +94,15 @@ public sealed class JsonRepository : ITaskRepository
 
             }
 
-            return query.ToList();
+            var filtered = query.ToList();
+            var total = filtered.Count;
+
+            var items = filtered
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            return new Paged<TaskItem>(items, total);
             
         }
 
