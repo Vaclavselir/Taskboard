@@ -62,38 +62,6 @@ public class TasksController : ControllerBase
     public  ActionResult<IEnumerable<TaskDto>> GetByTask([FromQuery] Priority? priority, [FromQuery] Status? status, [FromQuery] List<string>? tags)
     {
         
-        if (priority is not null &&  !Enum.IsDefined<Priority>(priority.Value))
-        {
-
-            return BadRequest(new ProblemDetails
-            {
-
-                Title = "Invalid priority",
-
-                Detail = $"Unknown priority '{priority}'.",
-
-                Status = StatusCodes.Status400BadRequest
-
-            });
-
-        }
-
-        if (status is not null &&  !Enum.IsDefined<Status>(status.Value))
-        {
-
-            return BadRequest(new ProblemDetails
-            {
-
-                Title = "Invalid status",
-
-                Detail = $"Unknown status '{status}'.",
-
-                Status = StatusCodes.Status400BadRequest
-                
-            });
-
-        }
-
         tags = tags?
             .Where(t => !string.IsNullOrWhiteSpace(t))
             .Select(t => t.Trim())
@@ -117,7 +85,6 @@ public class TasksController : ControllerBase
     public IActionResult Create([FromBody] CreateTaskRequest req)
     {
         
-        
         var id = _create.Create(req.ToCommand());
 
         return Created($"/api/tasks/{id}", new { id });
@@ -127,8 +94,6 @@ public class TasksController : ControllerBase
     [HttpPatch("{id:guid}")]
     public IActionResult Patch(Guid id, [FromBody] UpdateTaskRequest body)
     {
-
-
 
         Status? status = null;
 
@@ -147,6 +112,7 @@ public class TasksController : ControllerBase
         {
             if (!Enum.TryParse<Priority>(body.Priority, true, out var pri) || !Enum.IsDefined(typeof(Priority), pri))
                 throw new ArgumentException($"Unknown priority '{body.Priority}'.");
+                
             priority = pri;
         }
 
