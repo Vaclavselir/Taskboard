@@ -7,6 +7,7 @@ using TaskBoard.Application.Common;
 using TaskBoard.Api.Middleware;
 using TaskBoard.Api.Security;
 using System.Text.Json.Serialization;
+using System.Text.Json;
 using Microsoft.OpenApi.Models;
 using TaskBoard.Api.Filters;
 
@@ -81,11 +82,14 @@ builder.Services.AddSwaggerGen(c =>
     c.SchemaFilter<TaskPatchSchemaFilter>();
 });
 
+
+
 builder.Services
     .AddControllers()
+//Kontrola enumu 
     .AddJsonOptions(o =>
     {
-        o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: false));
     });
 
 var app = builder.Build();
