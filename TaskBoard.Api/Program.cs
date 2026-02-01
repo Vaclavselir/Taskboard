@@ -8,6 +8,7 @@ using TaskBoard.Api.Middleware;
 using TaskBoard.Api.Security;
 using System.Text.Json.Serialization;
 using Microsoft.OpenApi.Models;
+using TaskBoard.Api.Filters;
 
 
 
@@ -31,7 +32,7 @@ builder.Services.AddScoped<Updatetask>();
 builder.Services.Configure<KeyOptions>(builder.Configuration.GetSection(KeyOptions.SectionName));
 builder.Services.AddTransient<KeyMiddleware>();
 
-
+//ApiKey nastaveni do swaggeru
 builder.Services.AddSwaggerGen(c =>
 {
 
@@ -73,6 +74,12 @@ builder.Services.AddSwaggerGen(c =>
 
 });
 
+
+// Patch Task null filtr
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SchemaFilter<TaskPatchSchemaFilter>();
+});
 
 builder.Services
     .AddControllers()
