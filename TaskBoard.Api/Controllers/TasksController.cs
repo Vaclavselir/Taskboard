@@ -95,28 +95,14 @@ public class TasksController : ControllerBase
     public IActionResult Patch(Guid id, [FromBody] UpdateTaskRequest body)
     {
 
-        Status? status = null;
-
-        if (body.Status is not null)
-        {
-            
-            if (!Enum.TryParse<Status>(body.Status, true, out var sta) || !Enum.IsDefined(typeof(Status), sta))
-                throw new ArgumentException($"Unknown status '{body.Status}'.");
-
-            status = sta;
-
-        }
-
-        Priority? priority = null;
-        if (body.Priority is not null)
-        {
-            if (!Enum.TryParse<Priority>(body.Priority, true, out var pri) || !Enum.IsDefined(typeof(Priority), pri))
-                throw new ArgumentException($"Unknown priority '{body.Priority}'.");
-                
-            priority = pri;
-        }
-
-        var changed = _update.Update(id, newTitle: body.Title, newDescription: body.Description,newDueDate: body.DueDate, newStatus: status, newPriority: priority);
+        var changed = _update.Update(
+            id,
+            newTitle: body.Title, 
+            newDescription: body.Description,
+            newDueDate: body.DueDate, 
+            newStatus: body.Status, 
+            newPriority: body.Priority
+        );
 
     
         return NoContent();
