@@ -49,28 +49,28 @@ public class TasksController : ControllerBase
     */
 
     [HttpGet("{id:guid}")]
-    public ActionResult<IEnumerable<TaskDto>> GetById([FromRoute] Guid id)
+    public ActionResult<TaskDto> GetById([FromRoute] Guid id)
     {
         
         var task = _repo.GetById(id);
+
+        if (task is null)
+            return NotFound(new ProblemDetails
+            {
+
+                Title = "Task not found",
+                Detail = $"Task '{id}' does not exist.",
+                Status = 404
+
+            });
 
         return Ok(task.ToDto());
 
     }
 
     [HttpGet]
-    public  ActionResult<IEnumerable<TaskDto>> GetByTask([FromQuery] Priority? priority, [FromQuery] Status? status, [FromQuery] List<string>? tags)
+    public ActionResult<IEnumerable<TaskDto>> GetByTask([FromQuery] Priority? priority, [FromQuery]  Status? status, [FromQuery]  List<string>? tags)
     {
-        
-        tags = tags?
-            .Where(t => !string.IsNullOrWhiteSpace(t))
-            .Select(t => t.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        if (tags is { Count: 0 })
-            tags = null;
-
 
         var tasks = _repo.GetByTask(priority, status, tags);
 

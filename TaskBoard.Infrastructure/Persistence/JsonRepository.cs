@@ -58,7 +58,7 @@ public sealed class JsonRepository : ITaskRepository
 
     }
 
-    public IReadOnlyList<TaskItem>? GetByTask(Priority? priority, Status? status, IReadOnlyCollection<string>? tags)
+    public IReadOnlyList<TaskItem> GetByTask(Priority? priority, Status? status, IReadOnlyCollection<string>? tags)
     {
         
         lock (_gate)
@@ -77,7 +77,7 @@ public sealed class JsonRepository : ITaskRepository
 
                 var searchedTags = tags
                     .Where(x => !string.IsNullOrWhiteSpace(x))
-                    .Select(x => x.Trim())
+                    .Select(x => new Tag(x).Value)
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToArray();
 
@@ -85,9 +85,11 @@ public sealed class JsonRepository : ITaskRepository
                 {
 
                     query = query.Where(t =>
-                        t.Tags is not null && searchedTags.All(st =>
-                            t.Tags.Any(tag => string.Equals(tag.Value, st, StringComparison.OrdinalIgnoreCase))
+                        t.Tags is not null &&
+                            searchedTags.All(st =>
+                                t.Tags.Any(tag => string.Equals(tag.Value, st, StringComparison.OrdinalIgnoreCase))
                         ));
+                    
                 }
 
             }
