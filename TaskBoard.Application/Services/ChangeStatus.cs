@@ -23,16 +23,17 @@ public sealed class ChangeStatus
     public void ChangeSta(Guid id, Status newStatus)
     {
         
-
         var Task = _repo.GetById(id) ?? throw new KeyNotFoundException($"Task {id} not found.");
 
+        if (!Enum.IsDefined<Status>(newStatus))
+            throw new FormatException("Invalid status");
+
         var old = Task.Status;
-        Task.ChangeStatus(newStatus);
+        Task.UpdateStatus(newStatus);
 
         _repo.Save();
 
         StatusChanged?.Invoke(id, old, newStatus);
-
 
     }
 

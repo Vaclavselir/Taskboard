@@ -4,18 +4,21 @@ using TaskBoard.Application.Services;
 
 namespace TaskBoard.Api.Dtos.Services;
 
-
-public sealed record class ChangePriorityRequest
+public sealed record class UpdateTaskRequest
 (
 
-    string Priority
+    string? Title,
+
+    string? Description,
+
+    DateTime? DueDate,
+
+    string? Status,
+
+    string? Priority
 
 );
 
-public sealed record class ChangeStatusRequest
-(
 
-    string Status
-    
-);
+
 

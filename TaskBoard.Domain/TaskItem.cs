@@ -47,7 +47,7 @@ public sealed class TaskItem
     }
 
 
-    public void ChangeStatus(Status newStatus)
+    public void UpdateStatus(Status newStatus)
     {
         
         if (newStatus == Status) return;

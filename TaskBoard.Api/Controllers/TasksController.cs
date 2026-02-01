@@ -18,18 +18,17 @@ public class TasksController : ControllerBase
 
     private readonly ITaskRepository _repo;
     private readonly CreateTask _create;
-    private readonly ChangePriority _priority;
-    private readonly ChangeStatus _status;
+    private readonly Updatetask _update;
     private readonly DeleteTask _delete;
 
-    public TasksController(ITaskRepository repo, CreateTask create, ChangePriority priority, ChangeStatus status, DeleteTask delete)
+    public TasksController(ITaskRepository repo, CreateTask create, Updatetask update, DeleteTask delete)
     {
         
         _repo = repo;
         _create = create;
-        _priority = priority;
-        _status = status;
+        _update = update;
         _delete = delete;
+
 
     }
 
@@ -54,16 +53,6 @@ public class TasksController : ControllerBase
     {
         
         var task = _repo.GetById(id);
-
-        if (task is null)
-        {
-            return NotFound(new ProblemDetails
-            {
-                Title = "Task not found",
-                Detail = $"Task '{id}' does not exist.",
-                Status = StatusCodes.Status404NotFound
-            });
-        }
 
         return Ok(task.ToDto());
 
@@ -128,8 +117,6 @@ public class TasksController : ControllerBase
     public IActionResult Create([FromBody] CreateTaskRequest req)
     {
         
-        if(string.IsNullOrWhiteSpace(req.Title))
-              return BadRequest("Title is required.");
         
         var id = _create.Create(req.ToCommand());
 
@@ -137,97 +124,48 @@ public class TasksController : ControllerBase
 
     }
 
-    [HttpPatch("{id:guid}/priority")]
-    public IActionResult ChangePriority(Guid id, [FromBody] ChangePriorityRequest body)
+    [HttpPatch("{id:guid}")]
+    public IActionResult Patch(Guid id, [FromBody] UpdateTaskRequest body)
     {
-        
-        if (!Enum.TryParse<Priority>(body.Priority, ignoreCase: true, out var newPriority))
+
+
+
+        Status? status = null;
+
+        if (body.Status is not null)
         {
-            return BadRequest(new ProblemDetails
-            {
-                Title = "Invalid priority",
-                Detail = $"Unknown priority '{body.Priority}'.",
-                Status = StatusCodes.Status400BadRequest
-            });
+            
+            if (!Enum.TryParse<Status>(body.Status, true, out var sta) || !Enum.IsDefined(typeof(Status), sta))
+                throw new ArgumentException($"Unknown status '{body.Status}'.");
+
+            status = sta;
+
         }
 
-        try
-            {
-                _priority.ChangePri(id, newPriority);
-                return NoContent(); 
-            }
-        catch (KeyNotFoundException ex)
-            {
-                return NotFound(new ProblemDetails
-                {
-                    Title = "Task not found",
-                    Detail = ex.Message,
-                    Status = StatusCodes.Status404NotFound
-                });
-            }
-        
+        Priority? priority = null;
+        if (body.Priority is not null)
+        {
+            if (!Enum.TryParse<Priority>(body.Priority, true, out var pri) || !Enum.IsDefined(typeof(Priority), pri))
+                throw new ArgumentException($"Unknown priority '{body.Priority}'.");
+            priority = pri;
+        }
+
+        var changed = _update.Update(id, newTitle: body.Title, newDescription: body.Description,newDueDate: body.DueDate, newStatus: status, newPriority: priority);
+
+    
+        return NoContent();
 
     }
 
-    [HttpPatch("{id:guid}/status")]
-        public IActionResult ChangeStatus(Guid id, [FromBody] ChangeStatusRequest body)
-    {
-        
-        if (!Enum.TryParse<Status>(body.Status, ignoreCase: true, out var newStatus))
-        {
-            return BadRequest(new ProblemDetails
-            {
-                Title = "Invalid status",
-                Detail = $"Unknown status '{body.Status}'.",
-                Status = StatusCodes.Status400BadRequest
-            });
-        }
-
-        try
-        {
-            _status.ChangeSta(id, newStatus);
-            return NoContent(); 
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new ProblemDetails
-            {
-                Title = "Task not found",
-                Detail = ex.Message,
-                Status = StatusCodes.Status404NotFound
-            });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(new ProblemDetails
-            {
-                Title = "Invalid status transition",
-                Detail = ex.Message,
-                Status = StatusCodes.Status409Conflict
-            });
-        }
-
-        }
 
     [HttpDelete("{id:guid}")]
     public IActionResult Delete(Guid id)
     {
         
-        try
-        {
             _delete.Delete(id);
+            
             return NoContent(); 
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new ProblemDetails
-            {
-                Title = "Task not found",
-                Detail = ex.Message,
-                Status = StatusCodes.Status404NotFound
-            });
-        }
-
+  
     }
 
 }

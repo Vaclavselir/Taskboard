@@ -4,9 +4,11 @@ using TaskBoard.Infrastructure.Persistence;
 using TaskBoard.Application.Services;
 using TaskBoard.Application.Abstractions;
 using TaskBoard.Application.Common;
-using System.Text.Json.Serialization;
+using TaskBoard.Api.Middleware;
 using TaskBoard.Api.Security;
+using System.Text.Json.Serialization;
 using Microsoft.OpenApi.Models;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,12 +25,12 @@ builder.Services.AddSingleton<IGeneratorId, IdGenerator>();
 builder.Services.AddSingleton<ITaskRepository>(_ => new JsonRepository(@"G:\tasks.json"));
 
 builder.Services.AddScoped<CreateTask>();
-builder.Services.AddScoped<ChangePriority>();
-builder.Services.AddScoped<ChangeStatus>();
 builder.Services.AddScoped<DeleteTask>();
+builder.Services.AddScoped<Updatetask>();
 
 builder.Services.Configure<KeyOptions>(builder.Configuration.GetSection(KeyOptions.SectionName));
 builder.Services.AddTransient<KeyMiddleware>();
+
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -37,6 +39,7 @@ builder.Services.AddSwaggerGen(c =>
 
     c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
     {
+
         Type = SecuritySchemeType.ApiKey,
         Name = "X-API-KEY",
         In = ParameterLocation.Header,
@@ -46,18 +49,28 @@ builder.Services.AddSwaggerGen(c =>
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
+
         {
+
             new OpenApiSecurityScheme
             {
+
                 Reference = new OpenApiReference
                 {
+
                     Type = ReferenceType.SecurityScheme,
+
                     Id = "ApiKey"
+
                 }
+
             },
             Array.Empty<string>()
+            
         }
+
     });
+
 });
 
 
@@ -79,7 +92,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseMiddleware<ExceptionMiddleware>();
+
 app.UseMiddleware<KeyMiddleware>();
+
 
 app.MapControllers();
 

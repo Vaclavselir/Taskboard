@@ -10,6 +10,8 @@ public interface ITaskRepository
 
     TaskItem? GetById(Guid id);
 
+    IReadOnlyList<TaskItem>? GetByTask(Priority? priority, Status? status, IReadOnlyCollection<string>? tags);
+    
     IReadOnlyList<TaskItem> GetAll();
 
     void Save();

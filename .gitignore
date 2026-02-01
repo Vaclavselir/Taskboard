@@ -11,3 +11,5 @@ backups/
 packages/
 artifacts/
 config.json
+
+.fake

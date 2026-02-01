@@ -12,6 +12,7 @@ public sealed class JsonRepository : ITaskRepository
 
     private readonly string _filePath;
     private readonly Dictionary<Guid, TaskItem> _items;
+    
     private readonly object _gate = new();
 
 
@@ -49,10 +50,53 @@ public sealed class JsonRepository : ITaskRepository
     {
 
         lock (_gate)
+        {
+
             return _items.TryGetValue(id, out var task) ? task : null;
+
+        }
 
     }
 
+    public IReadOnlyList<TaskItem>? GetByTask(Priority? priority, Status? status, IReadOnlyCollection<string>? tags)
+    {
+        
+        lock (_gate)
+        {
+
+            IEnumerable<TaskItem> query = _items.Values;
+
+            if (priority is not null)
+                query = query.Where(t => t.Priority == priority.Value);
+
+            if (status is not null)
+                query = query.Where(t => t.Status == status.Value);
+
+            if (tags is { Count: > 0 })
+            {
+
+                var searchedTags = tags
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Select(x => x.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
+
+                if (searchedTags.Length > 0)
+                {
+
+                    query = query.Where(t =>
+                        t.Tags is not null && searchedTags.All(st =>
+                            t.Tags.Any(tag => string.Equals(tag.Value, st, StringComparison.OrdinalIgnoreCase))
+                        ));
+                }
+
+            }
+
+            return query.ToList();
+            
+        }
+
+    }
 
     public IReadOnlyList<TaskItem> GetAll()
     {
@@ -173,14 +217,14 @@ public sealed class JsonRepository : ITaskRepository
         if (r.Status == Status.Doing)
         {
 
-            task.ChangeStatus(Status.Doing);
+            task.UpdateStatus(Status.Doing);
 
         }
         else if (r.Status == Status.Done)
         {
 
-            task.ChangeStatus(Status.Doing);
-            task.ChangeStatus(Status.Done);
+            task.UpdateStatus(Status.Doing);
+            task.UpdateStatus(Status.Done);
 
         }
 
