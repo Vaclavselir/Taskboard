@@ -20,10 +20,10 @@ public sealed class TaskItem
 
     public DateTime? DueDate {get; private set;}
 
-    public List<Tag> Tags {get;}
+    public List<Tag> Tags { get; private set; }
 
 
-    public TaskItem(Guid id, string title, string? description, Priority priority, DateTime createdAt, DateTime? dueDate, IEnumerable<Tag>? tags = null)
+    private TaskItem(Guid id, string title, string? description, Priority priority, DateTime createdAt, DateTime? dueDate)
     {
         
         if (id == Guid.Empty) throw new ArgumentException("Id cannot be empty", nameof(id));
@@ -42,9 +42,16 @@ public sealed class TaskItem
         CreatedAt = createdAt;
         DueDate = dueDate;
         Status = Status.Todo;
-        Tags = tags?.Distinct().ToList() ?? new List<Tag>();
+        Tags = new List<Tag>();
 
 
+    }
+
+    public TaskItem(Guid id, string title, string? description, Priority priority, DateTime createdAt, DateTime? dueDate, IEnumerable<Tag>? tags = null)
+        : this(id, title, description, priority, createdAt, dueDate)
+    {
+        if (tags is not null)
+            Tags = tags.Distinct().ToList();
     }
 
 

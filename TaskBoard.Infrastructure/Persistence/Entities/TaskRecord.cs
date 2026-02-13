@@ -1,8 +1,11 @@
 using System;
 
 namespace TaskBoard.Infrastructure.Persistence;
+
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using TaskBoard.Domain;
+
 
 public sealed class TaskRecord
 {
@@ -24,6 +27,7 @@ public sealed class TaskRecord
 
     [JsonPropertyName("createdAt")]
     public DateTime CreatedAt { get; set; }
+
 
     [JsonPropertyName("dueDate")]
     public DateTime? DueDate { get; set; }

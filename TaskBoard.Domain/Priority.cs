@@ -1,6 +1,6 @@
 namespace TaskBoard.Domain;
 
-public enum Priority
+public enum Priority : byte
 {
 
     Low = 0,

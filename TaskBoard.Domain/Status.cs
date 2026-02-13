@@ -1,6 +1,6 @@
 namespace TaskBoard.Domain;
 
-public enum Status
+public enum Status : byte
 {
 
     Todo = 0,
