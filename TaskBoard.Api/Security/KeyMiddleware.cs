@@ -15,14 +15,6 @@ public sealed class KeyMiddleware : IMiddleware
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        
-        if (!context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase))
-        {
-            
-            await next(context);
-            return;
-
-        }
 
         if (string.IsNullOrWhiteSpace(_keyOptions.ApiKey))
         {
