@@ -24,7 +24,14 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ITime, SystemClock>();
 builder.Services.AddSingleton<IGeneratorId, IdGenerator>();
 
-builder.Services.AddSingleton<ITaskRepository>(_ => new JsonRepository(@"G:\tasks.json"));
+var jsonPath = builder.Configuration["Storage:Json:FilePath"] ?? "App_Data/tasks.json";
+
+var fullJsonPath = Path.IsPathRooted(jsonPath)
+    ? jsonPath
+    : Path.Combine(builder.Environment.ContentRootPath, jsonPath);
+
+builder.Services.AddSingleton<ITaskRepository>(_ => new JsonRepository(fullJsonPath));
+
 
 builder.Services.AddScoped<CreateTask>();
 builder.Services.AddScoped<DeleteTask>();
@@ -105,7 +112,10 @@ app.UseHttpsRedirection();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
-app.UseMiddleware<KeyMiddleware>();
+app.UseWhen(
+    ctx => ctx.Request.Path.StartsWithSegments("/api/admin", StringComparison.OrdinalIgnoreCase),
+    branch => branch.UseMiddleware<KeyMiddleware>()
+);
 
 
 app.MapControllers();

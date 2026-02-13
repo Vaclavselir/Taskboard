@@ -1,5 +1,6 @@
 bin/
 obj/
+TaskBoard.Api/App_Data/
 .vs/
 .vscode/
 *.user
