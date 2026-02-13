@@ -94,8 +94,9 @@ public class TasksController : ControllerBase
     {
         
         var id = _create.Create(req.ToCommand());
+        var task = _repo.GetById(id)!;
 
-        return CreatedAtAction($"/api/tasks/{id}", new { id });
+        return CreatedAtAction(nameof(GetById), new { id }, task.ToDto());
 
     }
 
@@ -121,9 +122,9 @@ public class TasksController : ControllerBase
     public IActionResult Delete(Guid id)
     {
         
-            _delete.Delete(id);
+        _delete.Delete(id);
             
-            return NoContent(); 
+        return NoContent(); 
   
     }
 

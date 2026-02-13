@@ -2,6 +2,7 @@ using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using TaskBoard.Domain.Exceptions;
 
 
 namespace TaskBoard.Api.Middleware;
@@ -41,7 +42,7 @@ public sealed class ExceptionMiddleware
             await WriteProblem(ctx, 400, "Invalid request", ex.Message);
 
         }
-        catch (InvalidOperationException ex)
+        catch (ConflictException ex)
         {
 
             await WriteProblem(ctx, 409, "Conflict", ex.Message);

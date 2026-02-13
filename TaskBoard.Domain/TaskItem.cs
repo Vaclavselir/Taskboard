@@ -1,5 +1,6 @@
 using System;
 using System.Windows.Markup;
+using TaskBoard.Domain.Exceptions;
 
 namespace TaskBoard.Domain;
 
@@ -57,7 +58,7 @@ public sealed class TaskItem
             (Status == Status.Doing && newStatus == Status.Done);
 
         if (!isValid)
-            throw new InvalidOperationException($"Invalid status transition: {Status} -> {newStatus}");
+            throw new ConflictException($"Invalid status transition: {Status} -> {newStatus}");
 
         Status = newStatus;
 
@@ -65,9 +66,13 @@ public sealed class TaskItem
 
     public void UpdateTitle(string title)
     {
+
         title = (title ?? string.Empty).Trim();
+
         if (title.Length < 3) throw new ArgumentException("Title must be at least 3 characters.", nameof(title));
+        
         Title = title;
+
     }
 
 

@@ -28,10 +28,7 @@ public sealed class DeleteTask
 
 
         TaskDeleted?.Invoke(taskItem);
+
     }
-
-
-
-
 
 }

@@ -16,39 +16,49 @@ public sealed class MemoryRepository : ITaskRepository
 
     public TaskItem? GetById(Guid id) => Items.TryGetValue(id, out var task) ? task : null;
 
-    public IReadOnlyList<TaskItem>? GetByTask(Priority? priority, Status? status, IReadOnlyCollection<string>? tags)
+    public Paged<TaskItem> GetByTask(Priority? priority, Status? status, IReadOnlyCollection<string>? tags, int pageNumber, int pageSize)
     {
         
         
         IEnumerable<TaskItem> query = Items.Values;
 
-        if (priority is not null)
-            query = query.Where(t => t.Priority == priority.Value);
+            if (priority is not null)
+                query = query.Where(t => t.Priority == priority.Value);
 
-        if (status is not null)
-            query = query.Where(t => t.Status == status.Value);
+            if (status is not null)
+                query = query.Where(t => t.Status == status.Value);
 
-        if (tags is { Count: > 0 })
-        {
-
-            var searchedTags = tags
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Select(x => x.Trim())
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToArray();
-
-            if (searchedTags.Length > 0)
+            if (tags is { Count: > 0 })
             {
 
-                query = query.Where(t =>
-                    t.Tags is not null &&
-                    t.Tags.All(tag => searchedTags.Contains(tag.Value, StringComparer.OrdinalIgnoreCase)));
+                var searchedTags = tags
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Select(x => new Tag(x).Value)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
+
+                if (searchedTags.Length > 0)
+                {
+
+                    query = query.Where(t =>
+                        t.Tags is not null &&
+                            searchedTags.All(st =>
+                                t.Tags.Any(tag => string.Equals(tag.Value, st, StringComparison.OrdinalIgnoreCase))
+                        ));
+                    
+                }
 
             }
 
-        }
+            var filtered = query.ToList();
+            var total = filtered.Count;
 
-        return query.ToList();
+            var items = filtered
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+        return new Paged<TaskItem>(items, total);
 
     }
 
