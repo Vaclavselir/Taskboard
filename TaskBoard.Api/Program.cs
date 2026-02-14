@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using Microsoft.OpenApi.Models;
 using TaskBoard.Api.Filters;
-using Microsoft.EntityFrameworkCore;
+using TaskBoard.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,21 +20,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ITime, SystemClock>();
 builder.Services.AddSingleton<IGeneratorId, IdGenerator>();
 
-var jsonPath = builder.Configuration["Storage:Json:FilePath"] ?? "App_Data/tasks.json";
-
-/* JSON
-var fullJsonPath = Path.IsPathRooted(jsonPath)
-    ? jsonPath
-    : Path.Combine(builder.Environment.ContentRootPath, jsonPath);
-
-builder.Services.AddSingleton<ITaskRepository>(_ => new JsonRepository(fullJsonPath));
-*/
-
-builder.Services.AddDbContext<TaskBoardDbContext>(o =>
-    o.UseSqlServer(builder.Configuration.GetConnectionString("dbTaskBoard")));
-    
-builder.Services.AddScoped<ITaskRepository, EFRepository>();
-
+builder.Services.AddTaskBoardStorage(builder.Configuration, builder.Environment.ContentRootPath);
 
 builder.Services.AddScoped<CreateTask>();
 builder.Services.AddScoped<DeleteTask>();
