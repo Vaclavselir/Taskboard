@@ -15,10 +15,15 @@ public sealed class KeyMiddleware : IMiddleware
 
     private readonly KeyOptions _keyOptions;
 
-    public KeyMiddleware(IOptions<KeyOptions> keyOptions)
+    private readonly ILogger<KeyMiddleware> _logger;
+    
+
+    public KeyMiddleware(IOptions<KeyOptions> keyOptions, ILogger<KeyMiddleware> logger)
     {
 
         _keyOptions = keyOptions.Value;
+
+        _logger = logger;
 
         if (!string.IsNullOrEmpty(_keyOptions.ApiKey))
             _expectedBytes = Encoding.UTF8.GetBytes(_keyOptions.ApiKey);
@@ -63,6 +68,14 @@ public sealed class KeyMiddleware : IMiddleware
             return;
 
         }
+
+        _logger.LogInformation(
+            "Admin API key auth OK. {Method} {Path} from {IP} TraceId={TraceId}",
+            context.Request.Method,
+            context.Request.Path.Value,
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            context.TraceIdentifier
+        );
 
         await next(context);
 
