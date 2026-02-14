@@ -1,6 +1,8 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace TaskBoard.Api.Security;
 
@@ -8,39 +10,63 @@ public sealed class KeyMiddleware : IMiddleware
 {
 
     private const string HeaderName = "X-API-KEY";
+
+    private readonly byte[] _expectedBytes;
+
     private readonly KeyOptions _keyOptions;
 
-    public KeyMiddleware(IOptions<KeyOptions> keyOptions) 
-        => _keyOptions = keyOptions.Value;
+    public KeyMiddleware(IOptions<KeyOptions> keyOptions)
+    {
+
+        _keyOptions = keyOptions.Value;
+
+        if (!string.IsNullOrEmpty(_keyOptions.ApiKey))
+            _expectedBytes = Encoding.UTF8.GetBytes(_keyOptions.ApiKey);
+        else
+            _expectedBytes = Array.Empty<byte>();
+
+    }
+    
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
 
-        if (string.IsNullOrWhiteSpace(_keyOptions.ApiKey))
+        if (!context.Request.Headers.TryGetValue(HeaderName, out var providedKey) || providedKey.Count != 1 || string.IsNullOrWhiteSpace(providedKey[0]))
         {
-            await WriteProblem(context, StatusCodes.Status401Unauthorized,
-                "Unauthorized", "API key is not configured.");
+
+            await Unauthorized(context, $"Missing or invalid {HeaderName}.");
+
             return;
+
         }
 
-        if (!context.Request.Headers.TryGetValue(HeaderName, out var providedKey))
+        string? provided = providedKey[0]!;
+        
+        string expected = _keyOptions.ApiKey;
+
+        if (string.IsNullOrEmpty(expected))
         {
-            await WriteProblem(context, StatusCodes.Status401Unauthorized,
-                "Unauthorized", $"Missing header '{HeaderName}'.");
+
+            await Misconfigured(context);
+
             return;
+
         }
 
-        if (!string.Equals(providedKey.ToString(), _keyOptions.ApiKey, StringComparison.Ordinal))
+        var providedBytes = Encoding.UTF8.GetBytes(provided);
+
+        if (providedBytes.Length != _expectedBytes.Length || !CryptographicOperations.FixedTimeEquals(providedBytes, _expectedBytes))
         {
-            await WriteProblem(context, StatusCodes.Status401Unauthorized,
-                "Unauthorized", "Invalid API key.");
+
+            await Unauthorized(context, $"Missing or invalid {HeaderName}.");
+
             return;
+
         }
 
-       await next(context);
+        await next(context);
 
     }
-
 
     public static async Task WriteProblem(HttpContext context, int status, string title, string detail)
     {
@@ -63,6 +89,12 @@ public sealed class KeyMiddleware : IMiddleware
         await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
 
     }
+
+    private Task Unauthorized(HttpContext ctx, string detail) =>
+        WriteProblem(ctx, 401, "Unauthorized", detail);
+
+    private Task Misconfigured(HttpContext ctx) =>
+        WriteProblem(ctx, 500, "Server misconfiguration", "Security:ApiKey is not configured.");
 
 
 

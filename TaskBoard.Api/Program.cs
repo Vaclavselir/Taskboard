@@ -11,12 +11,7 @@ using Microsoft.OpenApi.Models;
 using TaskBoard.Api.Filters;
 using Microsoft.EntityFrameworkCore;
 
-
-
-
 var builder = WebApplication.CreateBuilder(args);
-
-
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -27,7 +22,7 @@ builder.Services.AddSingleton<IGeneratorId, IdGenerator>();
 
 var jsonPath = builder.Configuration["Storage:Json:FilePath"] ?? "App_Data/tasks.json";
 
-/*
+/* JSON
 var fullJsonPath = Path.IsPathRooted(jsonPath)
     ? jsonPath
     : Path.Combine(builder.Environment.ContentRootPath, jsonPath);
@@ -60,33 +55,11 @@ builder.Services.AddSwaggerGen(c =>
         Type = SecuritySchemeType.ApiKey,
         Name = "X-API-KEY",
         In = ParameterLocation.Header,
-        Description = "API Key needed to access /api/* endpoints"
+        Description = "Admin API key"
 
     });
 
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-
-        {
-
-            new OpenApiSecurityScheme
-            {
-
-                Reference = new OpenApiReference
-                {
-
-                    Type = ReferenceType.SecurityScheme,
-
-                    Id = "ApiKey"
-
-                }
-
-            },
-            Array.Empty<string>()
-            
-        }
-
-    });
+    c.OperationFilter<AdminApiKey>();
 
 });
 
