@@ -19,6 +19,7 @@ public sealed class TaskBoardDbContext : DbContext
         b.ToTable("Tasks");
         b.HasKey(x => x.Id);
 
+        b.Property(x => x.RowVersion).IsRowVersion();
         
         b.Property(x => x.Id).ValueGeneratedNever();
 

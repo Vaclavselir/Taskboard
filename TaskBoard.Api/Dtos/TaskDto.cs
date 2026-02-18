@@ -9,6 +9,8 @@ public sealed record TaskDto
 
     Guid Id,
 
+    string RowVersion,
+
     string Title,
 
     string? Description,

@@ -7,6 +7,8 @@ namespace TaskBoard.Domain;
 public sealed class TaskItem
 {
     public Guid Id {get;}
+    
+    public byte[] RowVersion { get; private set; } = Array.Empty<byte>();
 
     public string Title {get; private set;}
 

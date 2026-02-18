@@ -12,6 +12,8 @@ public static class TaskMapper
     
         t.Id,
 
+        Convert.ToBase64String(t.RowVersion),
+
         t.Title,
 
         t.Description,

@@ -6,6 +6,7 @@ using TaskBoard.Api.Dtos.Services;
 using TaskBoard.Api.Mappers;
 using TaskBoard.Application.Services;
 using TaskBoard.Api.Helpers;
+using TaskBoard.Domain;
 namespace TaskBoard.Api.Controllers;
 
 
@@ -64,7 +65,11 @@ public class TasksController : ControllerBase
 
             });
 
-        return Ok(task.ToDto());
+        TaskDto dto = task.ToDto();
+
+        Response.Headers.ETag = $"\"{dto.RowVersion}\"";
+
+        return Ok(dto);
 
     }
 
@@ -101,8 +106,14 @@ public class TasksController : ControllerBase
     }
 
     [HttpPatch("{id:guid}")]
-    public IActionResult Patch(Guid id, [FromBody] UpdateTaskRequest body)
+    public IActionResult Patch(Guid id, [FromHeader(Name = "If-Match")] string? ifMatch, [FromBody] UpdateTaskRequest body)
     {
+
+        TaskItem? task = _repo.GetById(id);      
+        if (task is null) return NotFound();
+
+        if (!Matches(ifMatch, task.RowVersion))
+            return Conflict(new { message = "Task byl mezitím změněn. Udělej GET a zkus to znovu." });
 
         var changed = _update.Update(
             id,
@@ -114,6 +125,26 @@ public class TasksController : ControllerBase
         );
 
         return NoContent();
+
+    }
+
+    private static bool Matches(string? ifMatch, byte[] current)
+    {
+
+        if (string.IsNullOrWhiteSpace(ifMatch))
+            return true; 
+
+        var token = ifMatch.Trim();
+
+        
+        if (token.StartsWith("W/", StringComparison.OrdinalIgnoreCase))
+            token = token[2..].Trim();
+
+        token = token.Trim('"');
+
+        var currentToken = Convert.ToBase64String(current);
+
+        return string.Equals(token, currentToken, StringComparison.Ordinal);
 
     }
 
