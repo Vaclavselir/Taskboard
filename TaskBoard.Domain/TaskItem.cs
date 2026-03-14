@@ -7,6 +7,8 @@ namespace TaskBoard.Domain;
 public sealed class TaskItem
 {
     public Guid Id {get;}
+
+    public string OwnerId {get; private set;}
     
     public byte[] RowVersion { get; private set; } = Array.Empty<byte>();
 
@@ -25,7 +27,7 @@ public sealed class TaskItem
     public List<Tag> Tags { get; private set; }
 
 
-    private TaskItem(Guid id, string title, string? description, Priority priority, DateTime createdAt, DateTime? dueDate)
+    private TaskItem(Guid id, string ownerId, string title, string? description, Priority priority, DateTime createdAt, DateTime? dueDate)
     {
         
         if (id == Guid.Empty) throw new ArgumentException("Id cannot be empty", nameof(id));
@@ -38,6 +40,7 @@ public sealed class TaskItem
            
         
         Id = id;
+        OwnerId = ownerId;
         Title = title;
         Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
         Priority = priority;
@@ -49,8 +52,8 @@ public sealed class TaskItem
 
     }
 
-    public TaskItem(Guid id, string title, string? description, Priority priority, DateTime createdAt, DateTime? dueDate, IEnumerable<Tag>? tags = null)
-        : this(id, title, description, priority, createdAt, dueDate)
+    public TaskItem(Guid id, string ownerId, string title, string? description, Priority priority, DateTime createdAt, DateTime? dueDate, IEnumerable<Tag>? tags = null)
+        : this(id, ownerId, title, description, priority, createdAt, dueDate)
     {
         if (tags is not null)
             Tags = tags.Distinct().ToList();

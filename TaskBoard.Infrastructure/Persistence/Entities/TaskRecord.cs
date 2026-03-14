@@ -13,6 +13,9 @@ public sealed class TaskRecord
     [JsonPropertyName("id")]
     public Guid Id { get; set; }
 
+    [JsonPropertyName("ownerId")]
+    public string OwnerId { get; set; } = string.Empty;
+
     [JsonPropertyName("title")]
     public string Title { get; set; } = "";
 

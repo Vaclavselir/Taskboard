@@ -5,7 +5,7 @@ using TaskBoard.Domain;
 
 namespace TaskBoard.Infrastructure.Persistence;
 
-public sealed class EFRepository : ITaskRepository
+public sealed class EFRepository : ITaskRepository, IUserRepository
 {
 
     private readonly  TaskBoardDbContext _db;
@@ -14,18 +14,16 @@ public sealed class EFRepository : ITaskRepository
 
     public void Add(TaskItem task) => _db.Tasks.Add(task);
 
-    public TaskItem? GetById(Guid id)
-        => _db.Tasks.FirstOrDefault(t => t.Id == id);
-
+    public TaskItem? GetById(string ownerId,Guid id)
+        => _db.Tasks.AsNoTracking().FirstOrDefault(t => t.OwnerId == ownerId && t.Id == id);
 
     public IReadOnlyList<TaskItem> GetAll()
         => _db.Tasks.AsNoTracking().ToList();
 
-
-    public Paged<TaskItem> GetByTask(Priority? priority, Status? status, IReadOnlyCollection<string>? tags, int pageNumber, int pageSize)
+    public Paged<TaskItem> GetByTask(string ownerId, Priority? priority, Status? status, IReadOnlyCollection<string>? tags, int pageNumber, int pageSize)
     {
         
-        var query = _db.Tasks.AsNoTracking().AsQueryable();
+        var query = _db.Tasks.AsNoTracking().Where(t => t.OwnerId == ownerId);
 
         if (priority is not null)
             query = query.Where(t => t.Priority == priority.Value);
@@ -41,7 +39,6 @@ public sealed class EFRepository : ITaskRepository
 
         }
 
-        
         var total = query.Count();
 
         var items = query
@@ -54,10 +51,10 @@ public sealed class EFRepository : ITaskRepository
 
     }
 
-    public bool Remove(Guid id)
+    public bool Remove(string ownerId, Guid id)
     {
         
-        var entity = _db.Tasks.FirstOrDefault(t => t.Id == id);
+        var entity = _db.Tasks.FirstOrDefault(t => t.OwnerId == ownerId && t.Id == id);
 
         if(entity is null) return false;
 
@@ -67,6 +64,35 @@ public sealed class EFRepository : ITaskRepository
 
     }
 
+
+    public void Add(User user) => _db.Users.Add(user);
+
+    public User? GetById(string id)
+        => _db.Users.AsNoTracking().FirstOrDefault(u => u.Id == id);
+
+    public User? GetByEmail(string email)
+    {
+        var normalizedEmail = NormalizeEmail(email);
+
+        return _db.Users.AsNoTracking().FirstOrDefault(u => u.Email == normalizedEmail);
+    }
+
+    public bool ExistsByEmail(string email)
+    {
+        var normalizedEmail = NormalizeEmail(email);
+        return _db.Users.Any(u => u.Email == normalizedEmail);
+    }
+
     public void Save() => _db.SaveChanges();
+
+    private static string NormalizeEmail(string email)
+    {
+        email = (email ?? string.Empty).Trim();
+
+        if (email.Length == 0)
+            return string.Empty;
+
+        return email.ToUpperInvariant();
+    }
 
 }

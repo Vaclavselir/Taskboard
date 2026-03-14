@@ -18,14 +18,15 @@ public sealed class DeleteTask
     }
 
 
-    public void Delete(Guid id)
+    public void Delete(string ownerId, Guid id)
     {
         
-        var taskItem = _repo.GetById(id) ?? throw new KeyNotFoundException($"Task {id} not found.");
+        if (string.IsNullOrWhiteSpace(ownerId)) throw new ArgumentException("OwnerId is required.", nameof(ownerId));
 
-        _repo.Remove(id);
+        var taskItem = _repo.GetById(ownerId, id) ?? throw new KeyNotFoundException($"Task {id} not found.");
+
+        _repo.Remove(ownerId, id);
         _repo.Save();
-
 
         TaskDeleted?.Invoke(taskItem);
 

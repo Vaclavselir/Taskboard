@@ -7,9 +7,8 @@ using TaskBoard.Api.Mappers;
 using TaskBoard.Application.Services;
 using TaskBoard.Api.Helpers;
 using TaskBoard.Domain;
+using System.Security.Claims;
 namespace TaskBoard.Api.Controllers;
-
-
 
 
 [Route("api/[Controller]")]
@@ -29,7 +28,6 @@ public class TasksController : ControllerBase
         _create = create;
         _update = update;
         _delete = delete;
-
 
     }
 
@@ -53,9 +51,12 @@ public class TasksController : ControllerBase
     public ActionResult<TaskDto> GetById([FromRoute] Guid id)
     {
         
-        var task = _repo.GetById(id);
+        var ownerId = GetCurrentOwnerId();
+
+        var task = _repo.GetById(ownerId, id);
 
         if (task is null)
+        {
             return NotFound(new ProblemDetails
             {
 
@@ -64,6 +65,7 @@ public class TasksController : ControllerBase
                 Status = 404
 
             });
+        }
 
         TaskDto dto = task.ToDto();
 
@@ -77,13 +79,15 @@ public class TasksController : ControllerBase
     public ActionResult<PagedResult<TaskDto>> GetByTask([FromQuery] GetTaskQuery q)
     {
 
+        var ownerId = GetCurrentOwnerId();
+
         if (q.PageNumber < 1) 
             throw new ArgumentException("Page number must be >= 1.");
 
         if (q.PageSize < 1 || q.PageSize > 100) 
             throw new ArgumentException("Page size must be 1..100.");
 
-        var page = _repo.GetByTask(q.Priority, q.Status, q.Tags, q.PageNumber, q.PageSize);
+        var page = _repo.GetByTask(ownerId, q.Priority, q.Status, q.Tags, q.PageNumber, q.PageSize);
 
         var items = page.Items.Select(t => t.ToDto()).ToList();
 
@@ -98,8 +102,10 @@ public class TasksController : ControllerBase
     public IActionResult Create([FromBody] CreateTaskRequest req)
     {
         
-        var id = _create.Create(req.ToCommand());
-        var task = _repo.GetById(id)!;
+        var ownerId = GetCurrentOwnerId();
+
+        var id = _create.Create(ownerId, req.ToCommand());
+        var task = _repo.GetById(ownerId, id)!;
 
         return CreatedAtAction(nameof(GetById), new { id }, task.ToDto());
 
@@ -109,13 +115,16 @@ public class TasksController : ControllerBase
     public IActionResult Patch(Guid id, [FromHeader(Name = "If-Match")] string? ifMatch, [FromBody] UpdateTaskRequest body)
     {
 
-        TaskItem? task = _repo.GetById(id);      
+        var ownerId = GetCurrentOwnerId();
+
+        TaskItem? task = _repo.GetById(ownerId, id);      
         if (task is null) return NotFound();
 
         if (!Matches(ifMatch, task.RowVersion))
             return Conflict(new { message = "Task byl mezitím změněn. Udělej GET a zkus to znovu." });
 
         var changed = _update.Update(
+            ownerId,
             id,
             newTitle: body.Title, 
             newDescription: body.Description,
@@ -126,6 +135,18 @@ public class TasksController : ControllerBase
 
         return NoContent();
 
+    }
+
+    [HttpDelete("{id:guid}")]
+    public IActionResult Delete(Guid id)
+    {
+        
+        var ownerId = GetCurrentOwnerId();
+
+        _delete.Delete(ownerId, id);
+            
+        return NoContent(); 
+  
     }
 
     private static bool Matches(string? ifMatch, byte[] current)
@@ -148,15 +169,16 @@ public class TasksController : ControllerBase
 
     }
 
-
-    [HttpDelete("{id:guid}")]
-    public IActionResult Delete(Guid id)
+    private string GetCurrentOwnerId()
     {
-        
-        _delete.Delete(id);
-            
-        return NoContent(); 
-  
+        var ownerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+
+
+        if (string.IsNullOrWhiteSpace(ownerId))
+            throw new UnauthorizedAccessException("Authenticated user id was not found.");
+
+        return ownerId;
     }
+
 
 }

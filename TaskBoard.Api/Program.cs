@@ -13,7 +13,16 @@ using TaskBoard.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+//Kontrola enumu 
+    .AddJsonOptions(o =>
+    {
+
+        o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: false));
+
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -56,23 +65,14 @@ builder.Services.AddSwaggerGen(c =>
     c.SchemaFilter<TaskPatchSchemaFilter>();
 });
 
-
-
-builder.Services
-    .AddControllers()
-//Kontrola enumu 
-    .AddJsonOptions(o =>
-    {
-        o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: false));
-    });
-
 var app = builder.Build();
-
 
 if (app.Environment.IsDevelopment())
 {
+
     app.UseSwagger();
     app.UseSwaggerUI();
+
 }
 
 app.UseHttpsRedirection();
@@ -80,10 +80,11 @@ app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseWhen(
+
     ctx => ctx.Request.Path.StartsWithSegments("/api/admin", StringComparison.OrdinalIgnoreCase),
     branch => branch.UseMiddleware<KeyMiddleware>()
+    
 );
-
 
 app.MapControllers();
 

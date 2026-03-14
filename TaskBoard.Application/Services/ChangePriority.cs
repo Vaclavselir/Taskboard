@@ -19,11 +19,13 @@ public sealed class ChangePriority
     }
 
 
-    public void ChangePri(Guid id, Priority newPriority)
+    public void ChangePri(string ownerId, Guid id, Priority newPriority)
     {
         
 
-        var taskItem = _repo.GetById(id) ?? throw new KeyNotFoundException($"Task {id} not found.");
+        if (string.IsNullOrWhiteSpace(ownerId)) throw new ArgumentException("OwnerId is required.", nameof(ownerId));
+
+        var taskItem = _repo.GetById(ownerId, id) ?? throw new KeyNotFoundException($"Task {id} not found.");
 
         var old = taskItem.Priority;
 

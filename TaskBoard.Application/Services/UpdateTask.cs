@@ -21,16 +21,14 @@ public sealed class Updatetask
     }
 
 
-    public bool Update(Guid id, string? newTitle, string? newDescription, DateTime? newDueDate, Status? newStatus, Priority? newPriority)
+    public bool Update(string ownerId, Guid id, string? newTitle, string? newDescription, DateTime? newDueDate, Status? newStatus, Priority? newPriority)
     {
         
-        
+        if (string.IsNullOrWhiteSpace(ownerId)) throw new ArgumentException("OwnerId is required.", nameof(ownerId));
 
-        var taskItem = _repo.GetById(id) ?? throw new KeyNotFoundException($"Task {id} not found.");
+        var taskItem = _repo.GetById(ownerId, id) ?? throw new KeyNotFoundException($"Task {id} not found.");
 
         var changed = false;
-
-        
 
         if (newTitle is not null)
         {

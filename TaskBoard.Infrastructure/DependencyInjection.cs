@@ -23,7 +23,9 @@ public static class DependencyInjection
                 ? jsonPath
                 : Path.Combine(contentRootPath, jsonPath);
 
-            services.AddSingleton<ITaskRepository>(_ => new JsonRepository(fullPath));
+            services.AddSingleton<JsonRepository>(_ => new JsonRepository(fullPath));
+            services.AddSingleton<ITaskRepository>(sp => sp.GetRequiredService<JsonRepository>());
+            services.AddSingleton<IUserRepository>(sp => sp.GetRequiredService<JsonRepository>());
 
             return services;
 
@@ -32,7 +34,9 @@ public static class DependencyInjection
         services.AddDbContext<TaskBoardDbContext>(o =>
             o.UseSqlServer(config.GetConnectionString("dbTaskBoard")));
 
-        services.AddScoped<ITaskRepository, EFRepository>();
+        services.AddScoped<EFRepository>();
+        services.AddScoped<ITaskRepository>(sp => sp.GetRequiredService<EFRepository>());
+        services.AddScoped<IUserRepository>(sp => sp.GetRequiredService<EFRepository>());
 
         return services;
 

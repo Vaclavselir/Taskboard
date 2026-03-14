@@ -25,9 +25,14 @@ public sealed class CreateTask
 
     }
 
-    public Guid Create(TaskCommand cmd)
+    public Guid Create(string ownerId, TaskCommand cmd)
     {
         
+        if (string.IsNullOrWhiteSpace(ownerId)) throw new ArgumentException("OwnerId is required.", nameof(ownerId));
+
+        if (cmd is null) throw new ArgumentNullException(nameof(cmd));
+        
+
         var tags = (cmd.Tags ?? Array.Empty<string>())
             .Select(t => new Tag(t))
             .Distinct()
@@ -36,17 +41,12 @@ public sealed class CreateTask
         var task = new TaskItem(
 
             id: _ids.NewGuid(),
-
+            ownerId: ownerId,
             title: cmd.Title,
-
             description: cmd.Description,
-
             priority: cmd.Priority,
-
             createdAt: _time.Now,
-
             dueDate: cmd.DueDate,
-
             tags: tags
 
         );

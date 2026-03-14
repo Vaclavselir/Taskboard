@@ -32,7 +32,7 @@ public interface ITaskRepository
     /// <returns>
     /// The task instance if found; otherwise null.
     /// </returns>
-    TaskItem? GetById(Guid id);
+    TaskItem? GetById(string OwnerId, Guid id);
 
     /// <summary>
     /// Returns tasks matching the provided optional filters, with paging applied.
@@ -43,7 +43,7 @@ public interface ITaskRepository
     /// - Items is never null (empty list when nothing matches).
     /// 
     /// </summary>
-    Paged<TaskItem> GetByTask(Priority? priority, Status? status, IReadOnlyCollection<string>? tags, int pageNumber, int pageSize);
+    Paged<TaskItem> GetByTask(string OwnerId, Priority? priority, Status? status, IReadOnlyCollection<string>? tags, int pageNumber, int pageSize);
     
     IReadOnlyList<TaskItem> GetAll();
 
@@ -57,6 +57,6 @@ public interface ITaskRepository
     /// <returns>
     /// True if the task existed and was removed; otherwise false.
     /// </returns>
-    bool Remove(Guid id);
+    bool Remove(string OwnerId, Guid id);
 
 }

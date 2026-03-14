@@ -20,13 +20,14 @@ public sealed class ChangeStatus
 
     }
 
-    public void ChangeSta(Guid id, Status newStatus)
+    public void ChangeSta(string ownerId, Guid id, Status newStatus)
     {
         
-        var Task = _repo.GetById(id) ?? throw new KeyNotFoundException($"Task {id} not found.");
+        if (string.IsNullOrWhiteSpace(ownerId)) throw new ArgumentException("OwnerId is required.", nameof(ownerId));
+        
+        if (!Enum.IsDefined<Status>(newStatus)) throw new FormatException("Invalid status");
 
-        if (!Enum.IsDefined<Status>(newStatus))
-            throw new FormatException("Invalid status");
+        var Task = _repo.GetById(ownerId, id) ?? throw new KeyNotFoundException($"Task {id} not found.");
 
         var old = Task.Status;
         Task.UpdateStatus(newStatus);
