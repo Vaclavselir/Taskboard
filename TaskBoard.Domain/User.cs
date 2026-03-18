@@ -70,7 +70,7 @@ public sealed class User
 
     public void SetAdmin(bool isAdmin) => IsAdmin = isAdmin;
 
-    private static string NormalizeEmail(string email)
+    public static string NormalizeEmail(string email)
     {
 
         email = (email ?? string.Empty).Trim();
@@ -81,7 +81,7 @@ public sealed class User
         if (!email.Contains('@'))
             throw new ArgumentException("Email must contain '@'.", nameof(email));
 
-        return email.ToUpperInvariant();
+        return email.ToLowerInvariant();
         
     }
 
