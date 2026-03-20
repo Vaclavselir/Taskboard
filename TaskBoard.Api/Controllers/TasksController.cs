@@ -1,4 +1,4 @@
-using System;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskBoard.Application.Abstractions;
 using TaskBoard.Api.Dtos;
@@ -13,6 +13,7 @@ namespace TaskBoard.Api.Controllers;
 
 [Route("api/[Controller]")]
 [ApiController]
+[Authorize]
 public class TasksController : ControllerBase
 {
 
@@ -46,6 +47,21 @@ public class TasksController : ControllerBase
 
     }
     */
+
+    [HttpGet("mine")]
+    public IActionResult GetMine()
+    {
+        return Ok();
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("admin-only")]
+    public IActionResult GetAdminStuff()
+    {
+
+        return Ok();
+
+    }
 
     [HttpGet("{id:guid}")]
     public ActionResult<TaskDto> GetById([FromRoute] Guid id)
@@ -173,12 +189,10 @@ public class TasksController : ControllerBase
     {
         var ownerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
 
-
         if (string.IsNullOrWhiteSpace(ownerId))
             throw new UnauthorizedAccessException("Authenticated user id was not found.");
 
         return ownerId;
     }
-
 
 }
