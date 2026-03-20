@@ -6,8 +6,7 @@ namespace TaskBoard.Application.Abstractions;
 public interface IHasher
 {
 
-    string HashPassword(User user, string password);
-
-    bool VerifyPassword(User user, string password, string passwordHash);
+    string HashPassword(string password);
+    bool VerifyPassword(string password, string passwordHash);
 
 }

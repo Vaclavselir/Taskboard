@@ -9,12 +9,12 @@ public interface IUserRepository
 
     void Add(User user);
 
-    User? GetById(string id);
+    Task<User?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
 
-    User? GetByEmail(string email);
+    Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
 
-    bool ExistsByEmail(string email);
+    Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
 
-    void Save();
+    Task SaveAsync(CancellationToken cancellationToken = default);
 
 }
