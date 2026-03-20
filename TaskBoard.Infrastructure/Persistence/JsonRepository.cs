@@ -14,9 +14,8 @@ public sealed class JsonRepository : ITaskRepository, IUserRepository
     private readonly string _usersFilePath;
     private readonly Dictionary<Guid, TaskItem> _items;
     private readonly Dictionary<string, User> _users;
-    
-    private readonly object _gate = new();
 
+    private readonly SemaphoreSlim _gate = new(1, 1);
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -25,7 +24,6 @@ public sealed class JsonRepository : ITaskRepository, IUserRepository
         Converters = {new JsonStringEnumConverter()}
 
     };
-
 
     public JsonRepository(string filePath)
     {
@@ -129,6 +127,7 @@ public sealed class JsonRepository : ITaskRepository, IUserRepository
 
         lock (_gate)
         {
+
             if (!_items.TryGetValue(id, out var task))
                 return false;
 
@@ -136,6 +135,7 @@ public sealed class JsonRepository : ITaskRepository, IUserRepository
                 return false;
 
             return _items.Remove(id);
+            
         }
 
     }
@@ -143,47 +143,88 @@ public sealed class JsonRepository : ITaskRepository, IUserRepository
     public void Add(User user)
     {
 
-        lock (_gate)
+        _gate.Wait();
+        try
         {
 
             _users[user.Id] = user;
-            
+
+        }
+        finally
+        {
+
+            _gate.Release();
+
         }
 
     }
 
-    public User? GetById(string id)
+    public async Task<User?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
     {
-        lock (_gate)
+
+        await _gate.WaitAsync(cancellationToken);
+        try
         {
+
             return _users.TryGetValue(id, out var user) ? user : null;
+
         }
+        finally
+        {
+
+            _gate.Release();
+
+        }
+
     }
 
-    public User? GetByEmail(string email)
+    public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
+
         var normalizedEmail = NormalizeEmail(email);
 
-        lock (_gate)
+        await _gate.WaitAsync(cancellationToken);
+        try
         {
+
             return _users.Values.FirstOrDefault(u => u.Email == normalizedEmail);
+
         }
+        finally
+        {
+
+            _gate.Release();
+
+        }
+
     }
 
-    public bool ExistsByEmail(string email)
+    public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
+
         var normalizedEmail = NormalizeEmail(email);
 
-        lock (_gate)
+        await _gate.WaitAsync(cancellationToken);
+        try
         {
+
             return _users.Values.Any(u => u.Email == normalizedEmail);
+
         }
+        finally
+        {
+
+            _gate.Release();
+
+        }
+
     }
 
     public void Save()
     {
 
-        lock (_gate)
+        _gate.Wait();
+        try
         {
 
             var taskRecords = _items.Values.Select(MapTaskFromDomain).ToList();
@@ -191,6 +232,35 @@ public sealed class JsonRepository : ITaskRepository, IUserRepository
 
             var userRecords = _users.Values.Select(MapUserFromDomain).ToList();
             WriteJson(_usersFilePath, userRecords);
+
+        }
+        finally
+        {
+
+            _gate.Release();
+
+        }
+
+    }
+
+    public async Task SaveAsync(CancellationToken cancellationToken = default)
+    {
+
+        await _gate.WaitAsync(cancellationToken);
+        try
+        {
+
+            var taskRecords = _items.Values.Select(MapTaskFromDomain).ToList();
+            var userRecords = _users.Values.Select(MapUserFromDomain).ToList();
+
+            await WriteJsonAsync(_filePath, taskRecords, cancellationToken);
+            await WriteJsonAsync(_usersFilePath, userRecords, cancellationToken);
+
+        }
+        finally
+        {
+
+            _gate.Release();
 
         }
 
@@ -357,6 +427,24 @@ public sealed class JsonRepository : ITaskRepository, IUserRepository
             File.Move(tmp, path);
 
     }
+
+    private async Task WriteJsonAsync<T>(string path, List<T> records, CancellationToken cancellationToken)
+    {
+        var dir = Path.GetDirectoryName(path);
+        if (!string.IsNullOrWhiteSpace(dir))
+            Directory.CreateDirectory(dir);
+
+        var tmp = path + ".tmp";
+        var json = JsonSerializer.Serialize(records, JsonOptions);
+
+        await File.WriteAllTextAsync(tmp, json, cancellationToken);
+
+        if (File.Exists(path))
+            File.Replace(tmp, path, destinationBackupFileName: null, ignoreMetadataErrors: true);
+        else
+            File.Move(tmp, path);
+    }
+
 
 
     private static string NormalizeEmail(string email)

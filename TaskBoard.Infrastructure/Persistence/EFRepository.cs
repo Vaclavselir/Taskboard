@@ -64,35 +64,44 @@ public sealed class EFRepository : ITaskRepository, IUserRepository
 
     }
 
+    public void Save() => _db.SaveChanges();
 
+    // IUser
     public void Add(User user) => _db.Users.Add(user);
 
-    public User? GetById(string id)
-        => _db.Users.AsNoTracking().FirstOrDefault(u => u.Id == id);
+    public Task<User?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+        => _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
 
-    public User? GetByEmail(string email)
+    public Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
+
         var normalizedEmail = NormalizeEmail(email);
 
-        return _db.Users.AsNoTracking().FirstOrDefault(u => u.Email == normalizedEmail);
+        return _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == normalizedEmail, cancellationToken);
+
     }
 
-    public bool ExistsByEmail(string email)
+    public Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
+
         var normalizedEmail = NormalizeEmail(email);
-        return _db.Users.Any(u => u.Email == normalizedEmail);
+
+        return _db.Users.AnyAsync(u => u.Email == normalizedEmail, cancellationToken);
+
     }
 
-    public void Save() => _db.SaveChanges();
+    public Task SaveAsync(CancellationToken cancellationToken = default) => _db.SaveChangesAsync(cancellationToken);
 
     private static string NormalizeEmail(string email)
     {
+
         email = (email ?? string.Empty).Trim();
 
         if (email.Length == 0)
             return string.Empty;
 
         return email.ToUpperInvariant();
+
     }
 
 }
