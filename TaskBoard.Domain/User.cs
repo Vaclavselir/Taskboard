@@ -27,10 +27,10 @@ public sealed class User
     public User(string id, string email, string passwordHash, DateTime createdAt, bool isAdmin = false)
     {
 
+        var normalizedEmail = NormalizeEmail(email);
+
         if (string.IsNullOrWhiteSpace(id))
             throw new ArgumentException("User id cannot be empty.", nameof(id));
-
-        var normalizedEmail = NormalizeEmail(email);
 
         if (normalizedEmail.Length > 320)
             throw new ArgumentException("Email is too long.", nameof(email));
