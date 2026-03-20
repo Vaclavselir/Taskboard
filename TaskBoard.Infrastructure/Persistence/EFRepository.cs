@@ -15,7 +15,7 @@ public sealed class EFRepository : ITaskRepository, IUserRepository
     public void Add(TaskItem task) => _db.Tasks.Add(task);
 
     public TaskItem? GetById(string ownerId,Guid id)
-        => _db.Tasks.AsNoTracking().FirstOrDefault(t => t.OwnerId == ownerId && t.Id == id);
+        => _db.Tasks.FirstOrDefault(t => t.OwnerId == ownerId && t.Id == id);
 
     public IReadOnlyList<TaskItem> GetAll()
         => _db.Tasks.AsNoTracking().ToList();
