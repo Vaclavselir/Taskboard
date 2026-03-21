@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Components\Shared\" />
+    <Folder Include="Models\Common\" />
+    <Folder Include="Models\Tasks\" />
+    <Folder Include="Pages\" />
+    <Folder Include="Pages\Tasks\" />
+    <Folder Include="Services\" />
+    <Folder Include="Services\Api\" />
+    <Folder Include="Services\Auth\" />
+    <Folder Include="Services\Http\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TaskBoard.Application\TaskBoard.Application.csproj" />
+    <ProjectReference Include="..\TaskBoard.Domain\TaskBoard.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskBoard.Infrastructure", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskBoard.Api", "TaskBoard.Api\TaskBoard.Api.csproj", "{B8306129-C93B-4DFD-8DD0-608220FC0B8A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskBoard.UI", "TaskBoard.UI\TaskBoard.UI.csproj", "{8CFF8EC1-CC1E-47F3-A991-760C8A65C2D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{B8306129-C93B-4DFD-8DD0-608220FC0B8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8306129-C93B-4DFD-8DD0-608220FC0B8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8306129-C93B-4DFD-8DD0-608220FC0B8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CFF8EC1-CC1E-47F3-A991-760C8A65C2D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CFF8EC1-CC1E-47F3-A991-760C8A65C2D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CFF8EC1-CC1E-47F3-A991-760C8A65C2D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CFF8EC1-CC1E-47F3-A991-760C8A65C2D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
