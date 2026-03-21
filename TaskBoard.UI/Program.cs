@@ -17,17 +17,14 @@ builder.Services.AddScoped<AuthenticationStateProvider>(
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 
-// HTTP klienti
-builder.Services.AddTransient<AuthHeaderHandler>();
-
 var apiBase = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5071";
 
 builder.Services.AddHttpClient<AuthClient>(c =>
     c.BaseAddress = new Uri(apiBase));
 
 builder.Services.AddHttpClient<TasksClient>(c =>
-    c.BaseAddress = new Uri(apiBase))
-    .AddHttpMessageHandler<AuthHeaderHandler>();
+    c.BaseAddress = new Uri(apiBase));
+    
 
 var app = builder.Build();
 
