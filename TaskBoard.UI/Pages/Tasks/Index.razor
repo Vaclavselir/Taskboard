@@ -1,0 +1,429 @@
+@page "/tasks"
+@rendermode InteractiveServer
+
+@using TaskBoard.Domain
+@using TaskBoard.UI.Models.Tasks
+@using TaskBoard.UI.Models.Common
+
+@inject TasksClient TasksClient
+@inject NavigationManager Navigation
+
+<PageTitle>Moje tasky</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4 mt-3">
+    <h3 class="mb-0">Moje tasky</h3>
+    <a href="/tasks/create" class="btn btn-primary">+ Nový task</a>
+</div>
+
+@* ---- Filtrování ---- *@
+<div class="card mb-4">
+    <div class="card-body">
+
+        <div class="row g-3 align-items-end">
+
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">Priorita</label>
+                <select class="form-select form-select-sm" @bind="_query.Priority">
+                    <option value="">Všechny</option>
+                    @foreach (var p in Enum.GetValues<Priority>())
+                    {
+                        <option value="@p">@p</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">Status</label>
+                <select class="form-select form-select-sm" @bind="_query.Status">
+                    <option value="">Všechny</option>
+                    @foreach (var s in Enum.GetValues<Status>())
+                    {
+                        <option value="@s">@s</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold">Tag</label>
+                <div class="input-group input-group-sm">
+                    <input type="text"
+                           class="form-control"
+                           placeholder="Filtrovat podle tagu..."
+                           @bind="_tagInput"
+                           @bind:event="oninput"
+                           @onkeydown="HandleTagFilterKeyDown"
+                           @onkeydown:preventDefault="_preventTagEnter" />
+                    <button class="btn btn-outline-secondary"
+                            type="button"
+                            @onclick="AddFilterTag"
+                            disabled="@string.IsNullOrWhiteSpace(_tagInput)">
+                        +
+                    </button>
+                </div>
+                @if (_query.Tags.Count > 0)
+                {
+                    <div class="d-flex flex-wrap gap-1 mt-1">
+                        @foreach (var tag in _query.Tags)
+                        {
+                            <span class="badge bg-info text-dark d-flex align-items-center gap-1"
+                                  style="font-size: 0.75rem;">
+                                @tag
+                                <button type="button"
+                                        class="btn-close btn-close-white ms-1"
+                                        style="font-size: 0.5rem;"
+                                        @onclick="() => RemoveFilterTag(tag)">
+                                </button>
+                            </span>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="col-md-2 d-flex gap-2">
+                <button class="btn btn-sm btn-primary w-100" @onclick="ApplyFilters">
+                    Filtrovat
+                </button>
+                <button class="btn btn-sm btn-outline-secondary w-100" @onclick="ResetFilters">
+                    Reset
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@* ---- Obsah ---- *@
+@if (_isLoading)
+{
+    <div class="d-flex justify-content-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Načítání...</span>
+        </div>
+    </div>
+}
+else if (_errorMessage is not null)
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+        <button class="btn btn-sm btn-outline-danger ms-2" @onclick="LoadTasks">Zkusit znovu</button>
+    </div>
+}
+else if (_result is null || _result.Items.Count == 0)
+{
+    <div class="text-center py-5 text-muted">
+        <h5>Žádné tasky</h5>
+        <p>Zatím tu nic není. Vytvoř svůj první task!</p>
+        <a href="/tasks/create" class="btn btn-outline-primary">+ Vytvořit task</a>
+    </div>
+}
+else
+{
+    @* ---- Seznam tasků ---- *@
+    <div class="d-flex flex-column gap-2">
+        @foreach (var task in _result.Items)
+        {
+            <div class="card @(task.Id == _deletingId ? "border-danger" : "")">
+                <div class="card-body py-2 px-3">
+                    <div class="d-flex justify-content-between align-items-start">
+
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <h6 class="mb-0">@task.Title</h6>
+                                <span class="badge @GetStatusBadge(task.Status)">@task.Status</span>
+                                <span class="badge @GetPriorityBadge(task.Priority)">@task.Priority</span>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(task.Description))
+                            {
+                                <p class="text-muted small mb-1" style="max-width: 600px;">
+                                    @Truncate(task.Description, 120)
+                                </p>
+                            }
+
+                            <div class="d-flex gap-3 text-muted" style="font-size: 0.75rem;">
+                                @if (task.DueDate.HasValue)
+                                {
+                                    <span>Deadline: @task.DueDate.Value.ToString("dd.MM.yyyy")</span>
+                                }
+                                <span>Vytvořeno: @task.CreatedAt.ToString("dd.MM.yyyy")</span>
+                                @if (task.Tags.Count > 0)
+                                {
+                                    <span>@string.Join(", ", task.Tags)</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-1 ms-3 flex-shrink-0">
+                            @if (_confirmDeleteId == task.Id)
+                            {
+                                <span class="text-danger small me-1 align-self-center">Smazat?</span>
+                                <button class="btn btn-sm btn-danger"
+                                        disabled="@(_deletingId == task.Id)"
+                                        @onclick="() => ConfirmDelete(task.Id)">
+                                    @if (_deletingId == task.Id)
+                                    {
+                                        <span class="spinner-border spinner-border-sm"></span>
+                                    }
+                                    else
+                                    {
+                                        <span>Ano</span>
+                                    }
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        @onclick="CancelDelete">
+                                    Ne
+                                </button>
+                            }
+                            else
+                            {
+                                <a href="/tasks/edit/@task.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Upravit
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        @onclick="() => RequestDelete(task.Id)">
+                                    Smazat
+                                </button>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (_result.TotalPages > 1)
+    {
+        <nav class="mt-4 d-flex justify-content-between align-items-center">
+
+            <span class="text-muted small">
+                @_result.TotalCount tasků celkem, stránka @_result.PageNumber z @_result.TotalPages
+            </span>
+
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item @(_result.PageNumber <= 1 ? "disabled" : "")">
+                    <button class="page-link" @onclick="() => GoToPage(_result.PageNumber - 1)">
+                        &laquo;
+                    </button>
+                </li>
+
+                @for (int i = _pageStart; i <= _pageEnd; i++)
+                {
+                    var page = i;
+                    <li class="page-item @(page == _result.PageNumber ? "active" : "")">
+                        <button class="page-link" @onclick="() => GoToPage(page)">@(page)</button>
+                    </li>
+                }
+
+                <li class="page-item @(_result.PageNumber >= _result.TotalPages ? "disabled" : "")">
+                    <button class="page-link" @onclick="() => GoToPage(_result.PageNumber + 1)">
+                        &raquo;
+                    </button>
+                </li>
+            </ul>
+
+        </nav>
+    }
+}
+
+@code {
+
+    private GetTasksQueryModel _query = new GetTasksQueryModel();
+    private PagedResult<TaskDto>? _result;
+
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    private string _tagInput = string.Empty;
+    private bool _preventTagEnter;
+
+    private Guid? _confirmDeleteId;
+    private Guid? _deletingId;
+
+    private int _pageStart => Math.Max(1, (_result?.PageNumber ?? 1) - 2);
+    private int _pageEnd => Math.Min(_result?.TotalPages ?? 1, _pageStart + 4);
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await LoadTasks();
+
+    }
+
+    private async Task LoadTasks()
+    {
+
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+
+            _result = await TasksClient.GetAsync(_query);
+
+            if (_result is null)
+                _errorMessage = "Nepodařilo se načíst tasky.";
+
+        }
+        catch (Exception ex)
+        {
+
+            _errorMessage = $"Chyba: {ex.Message}";
+
+        }
+        finally
+        {
+
+            _isLoading = false;
+
+        }
+
+    }
+
+    private async Task ApplyFilters()
+    {
+
+        _query.PageNumber = 1;
+
+        await LoadTasks();
+
+    }
+
+    private async Task ResetFilters()
+    {
+
+        _query = new GetTasksQueryModel();
+
+        _tagInput = string.Empty;
+
+        await LoadTasks();
+
+    }
+
+    private async Task AddFilterTag()
+    {
+
+        string? trimmed = _tagInput.Trim();
+
+        if (!string.IsNullOrWhiteSpace(trimmed)
+            && !_query.Tags.Contains(trimmed, StringComparer.OrdinalIgnoreCase))
+        {
+            _query.Tags.Add(trimmed);
+        }
+
+        _tagInput = string.Empty;
+
+        await LoadTasks();
+
+    }
+
+    private async Task RemoveFilterTag(string tag)
+    {
+
+        _query.Tags.Remove(tag);
+
+        await LoadTasks();
+
+    }
+
+    private async Task HandleTagFilterKeyDown(KeyboardEventArgs e)
+    {
+
+        _preventTagEnter = e.Key == "Enter";
+
+        if (e.Key == "Enter")
+            await AddFilterTag();
+
+    }
+
+    private async Task GoToPage(int page)
+    {
+
+        if (_result is null) return;
+        if (page < 1 || page > _result.TotalPages) return;
+
+        _query.PageNumber = page;
+
+        await LoadTasks();
+
+    }
+
+    private void RequestDelete(Guid id)
+    {
+
+        _confirmDeleteId = id;
+
+    }
+
+    private void CancelDelete()
+    {
+
+        _confirmDeleteId = null;
+
+    }
+
+    private async Task ConfirmDelete(Guid id)
+    {
+
+        _deletingId = id;
+
+        try
+        {
+
+            var deleted = await TasksClient.DeleteAsync(id);
+
+            if (!deleted)
+            {
+
+                _errorMessage = "Nepodařilo se smazat task.";
+
+                return;
+
+            }
+
+            _confirmDeleteId = null;
+
+            await LoadTasks();
+
+        }
+        catch (Exception ex)
+        {
+
+            _errorMessage = $"Chyba při mazání: {ex.Message}";
+
+        }
+        finally
+        {
+
+            _deletingId = null;
+
+        }
+
+    }
+
+    private static string Truncate(string text, int maxLength)
+        => text.Length <= maxLength ? text : text[..maxLength] + "…";
+
+    private static string GetStatusBadge(string status) => status switch
+    {
+
+        nameof(Status.Todo)  => "bg-secondary",
+        nameof(Status.Doing) => "bg-primary",
+        nameof(Status.Done)  => "bg-success",
+        _ => "bg-secondary"
+
+    };
+
+    private static string GetPriorityBadge(string priority) => priority switch
+    {
+
+        nameof(Priority.Low)    => "bg-info text-dark",
+        nameof(Priority.Medium) => "bg-warning text-dark",
+        nameof(Priority.High)   => "bg-danger",
+        _ => "bg-secondary"
+
+    };
+
+}
