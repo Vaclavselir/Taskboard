@@ -12,7 +12,7 @@ public class CreateTaskModel
     public string? Description { get; set; }
 
     [Required(ErrorMessage = "Priorita je povinná.")]
-    public Priority Priority { get; set; } = Priority.Medium;
+    public Priority Priority { get; set; } = Priority.Low;
 
     public DateTime? DueDate { get; set; }
 
