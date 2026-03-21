@@ -9,13 +9,14 @@ public class AuthClient
 
     public AuthClient(HttpClient httpClient)
     {
+
         _httpClient = httpClient;
+        
     }
 
-    public async Task<AuthResponse?> LoginAsync(
-        LoginRequest request,
-        CancellationToken cancellationToken = default)
+    public async Task<AuthResponse?> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
+
         var response = await _httpClient.PostAsJsonAsync(
             "api/auth/login",
             request,
@@ -24,14 +25,13 @@ public class AuthClient
         if (!response.IsSuccessStatusCode)
             return null;
 
-        return await response.Content.ReadFromJsonAsync<AuthResponse>(
-            cancellationToken: cancellationToken);
+        return await response.Content.ReadFromJsonAsync<AuthResponse>(cancellationToken: cancellationToken);
+
     }
 
-    public async Task<AuthResponse?> RegisterAsync(
-        RegisterRequest request,
-        CancellationToken cancellationToken = default)
+    public async Task<AuthResponse?> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
+
         var response = await _httpClient.PostAsJsonAsync(
             "api/auth/register",
             request,
@@ -40,8 +40,8 @@ public class AuthClient
         if (!response.IsSuccessStatusCode)
             return null;
 
-        return await response.Content.ReadFromJsonAsync<AuthResponse>(
-            cancellationToken: cancellationToken);
+        return await response.Content.ReadFromJsonAsync<AuthResponse>( cancellationToken: cancellationToken);
+
     }
 
 }

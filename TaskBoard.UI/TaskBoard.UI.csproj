@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Folder Include="Components\Shared\" />
+    <Folder Include="Models\Auth\" />
     <Folder Include="Models\Common\" />
     <Folder Include="Models\Tasks\" />
     <Folder Include="Pages\" />

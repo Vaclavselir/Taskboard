@@ -17,10 +17,9 @@ public class TasksClient
         
     }
 
-    public async Task<PagedResult<TaskDto>?> GetAsync(
-        GetTasksQueryModel query,
-        CancellationToken cancellationToken = default)
+    public async Task<PagedResult<TaskDto>?> GetAsync(GetTasksQueryModel query, CancellationToken cancellationToken = default)
     {
+
         var url = BuildTasksUrl(query);
 
         var response = await _httpClient.GetAsync(url, cancellationToken);
@@ -28,14 +27,13 @@ public class TasksClient
         if (!response.IsSuccessStatusCode)
             return null;
 
-        return await response.Content.ReadFromJsonAsync<PagedResult<TaskDto>>(
-            cancellationToken: cancellationToken);
+        return await response.Content.ReadFromJsonAsync<PagedResult<TaskDto>>(cancellationToken: cancellationToken);
+
     }
 
-    public async Task<TaskDetailResult?> GetByIdAsync(
-        Guid id,
-        CancellationToken cancellationToken = default)
+    public async Task<TaskDetailResult?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
+
         var response = await _httpClient.GetAsync($"api/tasks/{id}", cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.NotFound)
@@ -43,20 +41,21 @@ public class TasksClient
 
         response.EnsureSuccessStatusCode();
 
-        var dto = await response.Content.ReadFromJsonAsync<TaskDto>(
-            cancellationToken: cancellationToken);
+        var dto = await response.Content.ReadFromJsonAsync<TaskDto>(cancellationToken: cancellationToken);
 
         return new TaskDetailResult
         {
+
             Task = dto,
             ETag = response.Headers.ETag?.Tag
+
         };
+
     }
 
-    public async Task<TaskDto?> CreateAsync(
-        CreateTaskModel request,
-        CancellationToken cancellationToken = default)
+    public async Task<TaskDto?> CreateAsync(CreateTaskModel request, CancellationToken cancellationToken = default)
     {
+
         var response = await _httpClient.PostAsJsonAsync(
             "api/tasks",
             request,
@@ -65,83 +64,101 @@ public class TasksClient
         if (!response.IsSuccessStatusCode)
             return null;
 
-        return await response.Content.ReadFromJsonAsync<TaskDto>(
-            cancellationToken: cancellationToken);
+        return await response.Content.ReadFromJsonAsync<TaskDto>(cancellationToken: cancellationToken);
+
     }
 
-    public async Task<PatchTaskResult> PatchAsync(
-        Guid id,
-        UpdateTaskModel request,
-        string? eTag = null,
-        CancellationToken cancellationToken = default)
+    public async Task<PatchTaskResult> PatchAsync(Guid id, UpdateTaskModel request, string? eTag = null, CancellationToken cancellationToken = default)
     {
+
         using var httpRequest = new HttpRequestMessage(HttpMethod.Patch, $"api/tasks/{id}")
         {
+
             Content = JsonContent.Create(request)
+
         };
 
         if (!string.IsNullOrWhiteSpace(eTag))
         {
+
             httpRequest.Headers.TryAddWithoutValidation("If-Match", eTag);
+
         }
 
         var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.NoContent)
         {
+
             return new PatchTaskResult
             {
+
                 Success = true
+
             };
+
         }
 
         if (response.StatusCode == HttpStatusCode.Conflict)
         {
+
             var error = await response.Content.ReadAsStringAsync(cancellationToken);
 
             return new PatchTaskResult
             {
+
                 Success = false,
                 Conflict = true,
                 ErrorMessage = error
+
             };
+
         }
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
+
             return new PatchTaskResult
             {
+
                 Success = false,
                 ErrorMessage = "Task nebyl nalezen."
+
             };
+            
         }
 
         var body = await response.Content.ReadAsStringAsync(cancellationToken);
 
         return new PatchTaskResult
         {
+
             Success = false,
-            ErrorMessage = string.IsNullOrWhiteSpace(body)
-                ? $"Chyba při PATCH: {(int)response.StatusCode} {response.ReasonPhrase}"
-                : body
+            ErrorMessage = string.IsNullOrWhiteSpace(body) ? $"Chyba při PATCH: {(int)response.StatusCode} {response.ReasonPhrase}" : body
+
         };
+
     }
 
-    public async Task<bool> DeleteAsync(
-        Guid id,
-        CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
+
         var response = await _httpClient.DeleteAsync($"api/tasks/{id}", cancellationToken);
+
         return response.IsSuccessStatusCode;
+
     }
 
     private static string BuildTasksUrl(GetTasksQueryModel query)
     {
+
         var sb = new StringBuilder("api/tasks?");
+
         var hasAny = false;
 
         void Add(string key, string? value)
         {
+
             if (string.IsNullOrWhiteSpace(value))
                 return;
 
@@ -152,6 +169,7 @@ public class TasksClient
             sb.Append('=');
             sb.Append(Uri.EscapeDataString(value));
             hasAny = true;
+
         }
 
         Add(nameof(query.Priority), query.Priority);
@@ -161,7 +179,9 @@ public class TasksClient
 
         foreach (var tag in query.Tags)
         {
+
             Add(nameof(query.Tags), tag);
+            
         }
 
         return sb.ToString();

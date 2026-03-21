@@ -6,8 +6,7 @@ using TaskBoard.UI.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 // Auth — všechno Scoped, vázané na circuit
 builder.Services.AddScoped<TokenStore>();
