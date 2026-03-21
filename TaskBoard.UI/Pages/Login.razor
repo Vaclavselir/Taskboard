@@ -1,0 +1,144 @@
+@page "/login"
+@using TaskBoard.Application.Auth
+@using TaskBoard.UI.Models.Auth
+@rendermode InteractiveServer
+
+@inject AuthClient AuthClient
+@inject AuthStateService AuthStateService
+@inject NavigationManager Navigation
+
+<PageTitle>Přihlášení</PageTitle>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+
+                <h3 class="card-title text-center mb-4">Přihlášení</h3>
+
+                @if (!string.IsNullOrEmpty(_errorMessage))
+                {
+
+                    <div class="alert alert-danger" role="alert">
+                        @_errorMessage
+                    </div>
+
+                }
+
+                <EditForm Model="_model"
+                          OnValidSubmit="HandleLogin"
+                          FormName="loginForm">
+
+                    <DataAnnotationsValidator />
+
+                    <div class="mb-3">
+
+                        <label for="email" class="form-label">Email</label>
+
+                        <InputText id="email"
+                                   class="form-control"
+                                   @bind-Value="_model.Email"
+                                   placeholder="your@email.cz" />
+
+                        <ValidationMessage For="() => _model.Email" />
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label for="password" class="form-label">Heslo</label>
+
+                        <InputText id="password"
+                                   type="password"
+                                   class="form-control"
+                                   @bind-Value="_model.Password"
+                                   placeholder="••••••••" />
+
+                        <ValidationMessage For="() => _model.Password" />
+
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-primary w-100"
+                            disabled="@_isLoading">
+
+                        @if (_isLoading)
+                        {
+
+                            <span class="spinner-border spinner-border-sm me-2"
+                                  role="status">
+                            </span>
+                            <span>Přihlašování...</span>
+
+                        }
+                        else
+                        {
+
+                            <span>Přihlásit se</span>
+
+                        }
+
+                    </button>
+
+                </EditForm>
+
+                <hr class="my-4" />
+
+                <p class="text-center text-muted mb-0">
+                    Nemáte účet?
+                    <a href="/register">Zaregistrujte se</a>
+                </p>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private LoginModel _model = new LoginModel();
+    private string? _errorMessage;
+    private bool _isLoading;
+
+    private async Task HandleLogin()
+    {
+
+        _errorMessage = null;
+        _isLoading = true;
+
+        try
+        {
+
+            LoginRequest? request = new LoginRequest(_model.Email, _model.Password);
+
+            AuthResponse? response = await AuthClient.LoginAsync(request);
+
+            if (response is null)
+            {
+
+                _errorMessage = "Neplatný email nebo heslo.";
+
+                return;
+
+            }
+
+            AuthStateService.MarkUserAsAuthenticated(response.AccessToken);
+            Navigation.NavigateTo(uri: "/");
+
+        }
+        catch (Exception)
+        {
+
+            _errorMessage = "Při přihlášení došlo k chybě. Zkuste to znovu.";
+
+        }
+        finally
+        {
+
+            _isLoading = false;
+
+        }
+
+    }
+
+}

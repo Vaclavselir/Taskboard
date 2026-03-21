@@ -1,0 +1,159 @@
+﻿@page "/register"
+@using TaskBoard.Application.Auth
+@using TaskBoard.UI.Models.Auth
+@rendermode InteractiveServer
+
+@inject AuthClient AuthClient
+@inject AuthStateService AuthStateService
+@inject NavigationManager Navigation
+
+<PageTitle>Registrace</PageTitle>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+
+                <h3 class="card-title text-center mb-4">Registrace</h3>
+
+                @if (!string.IsNullOrEmpty(_errorMessage))
+                {
+
+                    <div class="alert alert-danger" role="alert">
+                        @_errorMessage
+                    </div>
+
+                }
+
+                <EditForm Model="_model"
+                          OnValidSubmit="HandleRegister"
+                          FormName="registerForm">
+
+                    <DataAnnotationsValidator />
+
+                    <div class="mb-3">
+
+                        <label for="email" class="form-label">Email</label>
+
+                        <InputText id="email"
+                                   class="form-control"
+                                   @bind-Value="_model.Email"
+                                   placeholder="vas@email.cz" />
+
+                        <ValidationMessage For="() => _model.Email" />
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label for="password" class="form-label">Heslo</label>
+
+                        <InputText id="password"
+                                   type="password"
+                                   class="form-control"
+                                   @bind-Value="_model.Password"
+                                   placeholder="••••••••" />
+
+                        <ValidationMessage For="() => _model.Password" />
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label for="confirmPassword" class="form-label">
+                            Potvrzení hesla
+                        </label>
+
+                        <InputText id="confirmPassword"
+                                   type="password"
+                                   class="form-control"
+                                   @bind-Value="_model.ConfirmPassword"
+                                   placeholder="••••••••" />
+
+                        <ValidationMessage For="() => _model.ConfirmPassword" />
+
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-primary w-100"
+                            disabled="@_isLoading">
+
+                        @if (_isLoading)
+                        {
+
+                            <span class="spinner-border spinner-border-sm me-2"
+                                  role="status">
+                            </span>
+                            <span>Registrace...</span>
+
+                        }
+                        else
+                        {
+
+                            <span>Zaregistrovat se</span>
+
+                        }
+
+                    </button>
+
+                </EditForm>
+
+                <hr class="my-4" />
+
+                <p class="text-center text-muted mb-0">
+                    Už máte účet?
+                    <a href="/login">Přihlaste se</a>
+                </p>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private RegisterModel _model = new RegisterModel();
+    private string? _errorMessage;
+    private bool _isLoading;
+
+    private async Task HandleRegister()
+    {
+
+        _errorMessage = null;
+        _isLoading = true;
+
+        try
+        {
+
+            RegisterRequest? request = new RegisterRequest(_model.Email, _model.Password);
+
+            AuthResponse? response = await AuthClient.RegisterAsync(request);
+
+            if (response is null)
+            {
+
+                _errorMessage = "Registrace se nezdařila.";
+                return;
+
+            }
+
+            AuthStateService.MarkUserAsAuthenticated(response.AccessToken);
+            Navigation.NavigateTo(uri: "/");
+
+        }
+        catch (Exception)
+        {
+
+            _errorMessage = "Při registraci došlo k chybě. Zkuste to znovu.";
+
+        }
+        finally
+        {
+
+            _isLoading = false;
+
+        }
+
+    }
+
+}
