@@ -4,6 +4,8 @@ using System.Text;
 using TaskBoard.UI.Models.Common;
 using TaskBoard.UI.Models.Tasks;
 using TaskBoard.UI.Services.Auth;
+using System.Text.Json.Serialization; 
+using System.Text.Json;
 
 namespace TaskBoard.UI.Services.Api;
 
@@ -68,7 +70,7 @@ public class TasksClient
 
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/tasks")
         {
-            Content = JsonContent.Create(model)
+            Content = JsonContent.Create(model, options: ApiJsonOptions)
         };
         AttachToken(request);
 
@@ -86,7 +88,7 @@ public class TasksClient
 
         using var request = new HttpRequestMessage(HttpMethod.Patch, $"api/tasks/{id}")
         {
-            Content = JsonContent.Create(model)
+            Content = JsonContent.Create(model, options: ApiJsonOptions)
         };
         AttachToken(request);
 
@@ -183,5 +185,14 @@ public class TasksClient
         return sb.ToString();
 
     }
+
+    private static readonly JsonSerializerOptions ApiJsonOptions = new()
+    {
+
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
+
+    };
 
 }
