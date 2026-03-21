@@ -1,0 +1,20 @@
+@page "/"
+@rendermode InteractiveServer
+
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject NavigationManager Navigation
+
+<PageTitle>TaskBoard</PageTitle>
+
+<AuthorizeView>
+
+    <Authorized>
+        @{ Navigation.NavigateTo("/tasks", forceLoad: false); }
+    </Authorized>
+
+    <NotAuthorized>
+        @{ Navigation.NavigateTo("/login", forceLoad: false); }
+    </NotAuthorized>
+
+</AuthorizeView>

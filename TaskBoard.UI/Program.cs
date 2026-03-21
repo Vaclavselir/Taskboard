@@ -20,8 +20,7 @@ builder.Services.AddCascadingAuthenticationState();
 // HTTP klienti
 builder.Services.AddTransient<AuthHeaderHandler>();
 
-var apiBase = builder.Configuration["ApiBaseUrl"] 
-    ?? "https://localhost:7001";
+var apiBase = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5071";
 
 builder.Services.AddHttpClient<AuthClient>(c =>
     c.BaseAddress = new Uri(apiBase));
