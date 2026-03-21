@@ -6,26 +6,29 @@ namespace TaskBoard.UI.Services.Http;
 public class AuthHeaderHandler : DelegatingHandler
 {
 
-    private readonly TokenStore _tokenStore;
+    private readonly TokenStore _store;
 
-    public AuthHeaderHandler(TokenStore tokenStore)
+    public AuthHeaderHandler(TokenStore store)
     {
-        _tokenStore = tokenStore;
+
+        _store = store;
+
     }
 
-    protected override Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request,
-        CancellationToken cancellationToken)
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var token = _tokenStore.GetToken();
+
+        var token = _store.Token;
 
         if (!string.IsNullOrWhiteSpace(token))
         {
-            request.Headers.Authorization =
-                new AuthenticationHeaderValue("Bearer", token);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
         }
 
         return base.SendAsync(request, cancellationToken);
+
     }
 
 }

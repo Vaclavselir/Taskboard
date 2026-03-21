@@ -23,4 +23,8 @@
     <ProjectReference Include="..\TaskBoard.Domain\TaskBoard.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
+  </ItemGroup>
+
 </Project>

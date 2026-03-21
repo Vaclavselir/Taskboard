@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using TaskBoard.Application.Auth;
 
 namespace TaskBoard.UI.Services.Api;

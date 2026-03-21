@@ -5,10 +5,10 @@ namespace TaskBoard.UI.Services.Auth;
 public class TokenStore
 {
 
-    private string? _token;
+    public string? Token { get; private set; }
 
-    public void SetToken(string token) => _token = token;
-    public string? GetToken() => _token;
-    public void Clear() => _token = null;
+    public void Set(string token) => Token = token;
 
+    public void Clear() => Token = null;
+    
 }

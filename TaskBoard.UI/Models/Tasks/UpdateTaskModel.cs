@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using TaskBoard.Domain;
 
 namespace TaskBoard.UI.Models.Tasks;
