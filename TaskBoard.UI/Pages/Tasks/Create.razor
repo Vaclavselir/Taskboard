@@ -1,5 +1,5 @@
 @page "/tasks/create"
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 @using TaskBoard.UI.Models.Tasks
 @using TaskBoard.UI.Components.Shared
@@ -7,29 +7,41 @@
 @inject TasksClient TasksClient
 @inject NavigationManager Navigation
 
-<PageTitle>Nový task</PageTitle>
+<AuthorizeView>
 
-<div class="row justify-content-center mt-4">
-    <div class="col-md-8 col-lg-6">
+    <Authorized>
 
-        <h3 class="mb-4">Nový task</h3>
+        <PageTitle>Nový task</PageTitle>
 
-        @if (_errorMessage is not null)
-        {
-            <div class="alert alert-danger alert-dismissible" role="alert">
-                @_errorMessage
-                <button type="button" class="btn-close" @onclick="() => _errorMessage = null"></button>
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-8 col-lg-6">
+
+                <h3 class="mb-4">Nový task</h3>
+
+                @if (_errorMessage is not null)
+                {
+                    <div class="alert alert-danger alert-dismissible" role="alert">
+                        @_errorMessage
+                        <button type="button" class="btn-close" @onclick="() => _errorMessage = null"></button>
+                    </div>
+                }
+
+                <TaskForm Model="_model"
+                          OnValidSubmit="HandleCreate"
+                          SubmitLabel="Vytvořit task"
+                          IsSubmitting="_isSubmitting"
+                          CancelHref="/tasks" />
+
             </div>
-        }
+        </div>
 
-        <TaskForm Model="_model"
-                  OnValidSubmit="HandleCreate"
-                  SubmitLabel="Vytvořit task"
-                  IsSubmitting="_isSubmitting"
-                  CancelHref="/tasks" />
+    </Authorized>
 
-    </div>
-</div>
+    <NotAuthorized>
+        @{ Navigation.NavigateTo("/login"); }
+    </NotAuthorized>
+
+</AuthorizeView>
 
 @code {
 

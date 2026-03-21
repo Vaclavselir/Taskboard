@@ -1,5 +1,5 @@
 @page "/tasks/edit/{Id:guid}"
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 @using TaskBoard.Domain
 @using TaskBoard.UI.Models.Tasks
@@ -8,60 +8,72 @@
 @inject TasksClient TasksClient
 @inject NavigationManager Navigation
 
-<PageTitle>Upravit task</PageTitle>
+<AuthorizeView>
 
-<div class="row justify-content-center mt-4">
-    <div class="col-md-8 col-lg-6">
+    <Authorized>
 
-        @if (_isLoading)
-        {
-            <div class="d-flex justify-content-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Načítání...</span>
-                </div>
+        <PageTitle>Upravit task</PageTitle>
+
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-8 col-lg-6">
+
+                @if (_isLoading)
+                {
+                    <div class="d-flex justify-content-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Načítání...</span>
+                        </div>
+                    </div>
+                }
+                else if (_notFound)
+                {
+                    <div class="alert alert-warning" role="alert">
+                        Task nebyl nalezen. Možná byl smazán.
+                        <a href="/tasks" class="alert-link">Zpět na seznam</a>
+                    </div>
+                }
+                else
+                {
+
+                    <h3 class="mb-4">Upravit task</h3>
+
+                    @if (_errorMessage is not null)
+                    {
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            @_errorMessage
+                            <button type="button" class="btn-close" @onclick="() => _errorMessage = null"></button>
+                        </div>
+                    }
+
+                    @if (_conflictMessage is not null)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            @_conflictMessage
+                            <button class="btn btn-sm btn-outline-warning ms-2" @onclick="ReloadTask">
+                                Načíst aktuální verzi
+                            </button>
+                        </div>
+                    }
+
+                    <TaskForm Model="_model"
+                              OnValidSubmit="HandleUpdate"
+                              ShowStatus="true"
+                              SubmitLabel="Uložit změny"
+                              IsSubmitting="_isSubmitting"
+                              CancelHref="/tasks" />
+
+                }
+
             </div>
-        }
-        else if (_notFound)
-        {
-            <div class="alert alert-warning" role="alert">
-                Task nebyl nalezen. Možná byl smazán.
-                <a href="/tasks" class="alert-link">Zpět na seznam</a>
-            </div>
-        }
-        else
-        {
+        </div>
 
-            <h3 class="mb-4">Upravit task</h3>
+    </Authorized>
 
-            @if (_errorMessage is not null)
-            {
-                <div class="alert alert-danger alert-dismissible" role="alert">
-                    @_errorMessage
-                    <button type="button" class="btn-close" @onclick="() => _errorMessage = null"></button>
-                </div>
-            }
+    <NotAuthorized>
+        @{ Navigation.NavigateTo("/login"); }
+    </NotAuthorized>
 
-            @if (_conflictMessage is not null)
-            {
-                <div class="alert alert-warning" role="alert">
-                    @_conflictMessage
-                    <button class="btn btn-sm btn-outline-warning ms-2" @onclick="ReloadTask">
-                        Načíst aktuální verzi
-                    </button>
-                </div>
-            }
-
-            <TaskForm Model="_model"
-                      OnValidSubmit="HandleUpdate"
-                      ShowStatus="true"
-                      SubmitLabel="Uložit změny"
-                      IsSubmitting="_isSubmitting"
-                      CancelHref="/tasks" />
-
-        }
-
-    </div>
-</div>
+</AuthorizeView>
 
 @code {
 
