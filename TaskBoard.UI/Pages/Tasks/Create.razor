@@ -1,0 +1,89 @@
+@page "/tasks/create"
+@rendermode InteractiveServer
+
+@using TaskBoard.UI.Models.Tasks
+@using TaskBoard.UI.Components.Shared
+
+@inject TasksClient TasksClient
+@inject NavigationManager Navigation
+
+<PageTitle>Nový task</PageTitle>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8 col-lg-6">
+
+        <h3 class="mb-4">Nový task</h3>
+
+        @if (_errorMessage is not null)
+        {
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                @_errorMessage
+                <button type="button" class="btn-close" @onclick="() => _errorMessage = null"></button>
+            </div>
+        }
+
+        <TaskForm Model="_model"
+                  OnValidSubmit="HandleCreate"
+                  SubmitLabel="Vytvořit task"
+                  IsSubmitting="_isSubmitting"
+                  CancelHref="/tasks" />
+
+    </div>
+</div>
+
+@code {
+
+    private TaskFormModel _model = new TaskFormModel();
+
+    private bool _isSubmitting;
+
+    private string? _errorMessage;
+
+    private async Task HandleCreate()
+    {
+
+        _isSubmitting = true;
+        _errorMessage = null;
+
+        try
+        {
+
+            CreateTaskModel? request = new CreateTaskModel
+            {
+                Title = _model.Title,
+                Description = _model.Description,
+                Priority = _model.Priority,
+                DueDate = _model.DueDate,
+                Tags = _model.Tags.Count > 0 ? _model.Tags : null
+            };
+
+            TaskDto? created = await TasksClient.CreateAsync(request);
+
+            if (created is null)
+            {
+
+                _errorMessage = "Nepodařilo se vytvořit task. Zkus to znovu.";
+
+                return;
+
+            }
+
+            Navigation.NavigateTo(uri: "/tasks");
+
+        }
+        catch (Exception ex)
+        {
+
+            _errorMessage = $"Chyba: {ex.Message}";
+
+        }
+        finally
+        {
+
+            _isSubmitting = false;
+
+        }
+
+    }
+
+}
