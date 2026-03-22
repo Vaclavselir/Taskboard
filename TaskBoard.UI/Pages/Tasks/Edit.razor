@@ -131,8 +131,8 @@
             {
                 Title = task.Title,
                 Description = task.Description,
-                Priority = Enum.TryParse<Priority>(task.Priority, out Priority p) ? p : Priority.Low,
-                Status = Enum.TryParse<Status>(task.Status, out Status s) ? s : Status.Todo,
+                Priority = Enum.TryParse<Priority>(task.Priority, ignoreCase: true, out Priority p) ? p : Priority.Low,
+                Status = Enum.TryParse<Status>(task.Status, ignoreCase: true, out Status s) ? s : Status.Todo,
                 DueDate = task.DueDate,
                 Tags = task.Tags?.ToList() ?? []
             };
