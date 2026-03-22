@@ -121,6 +121,14 @@ public sealed class JsonRepository : ITaskRepository, IUserRepository
 
     }
 
+    public IReadOnlyList<TaskItem> GetAllTracked()
+    {
+
+        lock (_gate)
+            return _items.Values.ToList();
+            
+    }
+
 
     public bool Remove(string ownerId, Guid id)
     {
@@ -303,6 +311,7 @@ public sealed class JsonRepository : ITaskRepository, IUserRepository
         CreatedAt = t.CreatedAt,
         UpdatedAt = t.UpdatedAt,
         DueDate = t.DueDate,
+        LastCheckedAt = t.LastCheckedAt,
         Tags = t.Tags.Select(x => x.Value).ToList()
 
     };
@@ -327,7 +336,8 @@ public sealed class JsonRepository : ITaskRepository, IUserRepository
             createdAt: r.CreatedAt,
             dueDate: r.DueDate,
             tags: tags,
-            updatedAt: r.UpdatedAt
+            updatedAt: r.UpdatedAt,
+            lastCheckedAt: r.LastCheckedAt
 
         );
 

@@ -59,4 +59,6 @@ public interface ITaskRepository
     /// </returns>
     bool Remove(string OwnerId, Guid id);
 
+    IReadOnlyList<TaskItem> GetAllTracked();
+
 }

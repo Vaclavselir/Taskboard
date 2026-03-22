@@ -20,6 +20,9 @@ public sealed class EFRepository : ITaskRepository, IUserRepository
     public IReadOnlyList<TaskItem> GetAll()
         => _db.Tasks.AsNoTracking().ToList();
 
+    public IReadOnlyList<TaskItem> GetAllTracked()
+        => _db.Tasks.ToList();
+
     public Paged<TaskItem> GetByTask(string ownerId, Priority? priority, Status? status, IReadOnlyCollection<string>? tags, int pageNumber, int pageSize)
     {
         

@@ -12,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using TaskBoard.Api.Filters;
 using TaskBoard.Infrastructure;
 using TaskBoard.Infrastructure.Security;
+using TaskBoard.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,7 @@ builder.Services.AddScoped<IJwtToken, JwtTokenService>();
 builder.Services.AddScoped<IHasher, HasherAdapter>();
 
 builder.Services.Configure<KeyOptions>(builder.Configuration.GetSection(KeyOptions.SectionName));
+
 builder.Services.AddTransient<KeyMiddleware>();
 
 // Jwt authentication
@@ -73,6 +75,7 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddHostedService<TaskStatisticsService>();
 
 //Prihlasovani a nastaveni do swaggeru
 builder.Services.AddSwaggerGen(c =>
