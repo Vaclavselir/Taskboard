@@ -19,6 +19,8 @@ public sealed record TaskDto
 
     Priority Priority,
 
+    bool IsOverdue,
+
     DateTime CreatedAt,
 
     DateTime? DueDate,

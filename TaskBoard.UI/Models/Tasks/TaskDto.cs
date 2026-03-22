@@ -21,5 +21,7 @@ public class TaskDto
     public DateTime? DueDate { get; set; }
 
     public IReadOnlyList<string> Tags { get; set; } = [];
+
+    public bool IsOverdue {get; set;}
     
 }

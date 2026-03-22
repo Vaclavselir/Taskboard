@@ -19,7 +19,6 @@
             <a href="/tasks/create" class="btn btn-primary">+ Nový task</a>
         </div>
 
-        @* ---- Filtrování ---- *@
         <div class="card mb-4">
             <div class="card-body">
 
@@ -29,7 +28,7 @@
                         <label class="form-label small fw-semibold">Priorita</label>
                         <select class="form-select form-select-sm" @bind="_query.Priority">
                             <option value="">Všechny</option>
-                            @foreach (var p in Enum.GetValues<Priority>())
+                            @foreach (Priority p in Enum.GetValues<Priority>())
                             {
                                 <option value="@p">@p</option>
                             }
@@ -40,7 +39,7 @@
                         <label class="form-label small fw-semibold">Status</label>
                         <select class="form-select form-select-sm" @bind="_query.Status">
                             <option value="">Všechny</option>
-                            @foreach (var s in Enum.GetValues<Status>())
+                            @foreach (Status s in Enum.GetValues<Status>())
                             {
                                 <option value="@s">@s</option>
                             }
@@ -67,7 +66,7 @@
                         @if (_query.Tags.Count > 0)
                         {
                             <div class="d-flex flex-wrap gap-1 mt-1">
-                                @foreach (var tag in _query.Tags)
+                                @foreach (string tag in _query.Tags)
                                 {
                                     <span class="badge bg-info text-dark d-flex align-items-center gap-1"
                                           style="font-size: 0.75rem;">
@@ -97,7 +96,6 @@
             </div>
         </div>
 
-        @* ---- Obsah ---- *@
         @if (_isLoading)
         {
             <div class="d-flex justify-content-center py-5">
@@ -123,9 +121,8 @@
         }
         else
         {
-            @* ---- Seznam tasků ---- *@
             <div class="d-flex flex-column gap-2">
-                @foreach (var task in _result.Items)
+                @foreach (TaskDto task in _result.Items)
                 {
                     <div class="card @(task.Id == _deletingId ? "border-danger" : "")">
                         <div class="card-body py-2 px-3">
@@ -136,6 +133,10 @@
                                         <h6 class="mb-0">@task.Title</h6>
                                         <span class="badge @GetStatusBadge(task.Status)">@task.Status</span>
                                         <span class="badge @GetPriorityBadge(task.Priority)">@task.Priority</span>
+                                        @if (task.IsOverdue)
+                                        {
+                                            <span class="badge bg-danger">Po termínu!</span>
+                                        }
                                     </div>
 
                                     @if (!string.IsNullOrWhiteSpace(task.Description))
@@ -148,7 +149,9 @@
                                     <div class="d-flex gap-3 text-muted" style="font-size: 0.75rem;">
                                         @if (task.DueDate.HasValue)
                                         {
-                                            <span>Deadline: @task.DueDate.Value.ToString("dd.MM.yyyy")</span>
+                                            <span class="@(task.IsOverdue ? "text-danger fw-bold" : "")">
+                                                    Deadline: @task.DueDate.Value.ToString("dd.MM.yyyy")
+                                            </span>
                                         }
                                         <span>Vytvořeno: @task.CreatedAt.ToString("dd.MM.yyyy")</span>
                                         @if (task.Tags.Count > 0)
@@ -235,7 +238,7 @@
     </Authorized>
 
     <NotAuthorized>
-        @{ Navigation.NavigateTo("/login"); }
+        @{ Navigation.NavigateTo(uri: "/login"); }
     </NotAuthorized>
 
 </AuthorizeView>
@@ -384,7 +387,7 @@
         try
         {
 
-            var deleted = await TasksClient.DeleteAsync(id);
+            bool deleted = await TasksClient.DeleteAsync(id);
 
             if (!deleted)
             {

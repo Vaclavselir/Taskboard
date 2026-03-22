@@ -22,6 +22,8 @@ public static class TaskMapper
 
         t.Priority,
 
+        t.IsOverdue,
+
         t.CreatedAt,
 
         t.DueDate,

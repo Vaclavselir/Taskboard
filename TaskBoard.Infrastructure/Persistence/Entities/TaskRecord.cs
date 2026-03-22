@@ -31,7 +31,6 @@ public sealed class TaskRecord
     [JsonPropertyName("createdAt")]
     public DateTime CreatedAt { get; set; }
 
-
     [JsonPropertyName("dueDate")]
     public DateTime? DueDate { get; set; }
 

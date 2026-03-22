@@ -20,6 +20,8 @@ public sealed class TaskItem
 
     public Priority Priority { get; private set; }
 
+    public bool IsOverdue => DueDate.HasValue && DueDate.Value < DateTime.UtcNow && Status != Status.Done;
+
     public DateTime CreatedAt {get;}
 
     public DateTime? DueDate {get; private set;}
