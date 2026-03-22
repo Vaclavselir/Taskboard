@@ -181,7 +181,7 @@ public sealed class JsonRepository : ITaskRepository, IUserRepository
     public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
 
-        var normalizedEmail = NormalizeEmail(email);
+        var normalizedEmail = User.NormalizeEmail(email);
 
         await _gate.WaitAsync(cancellationToken);
         try
@@ -202,7 +202,7 @@ public sealed class JsonRepository : ITaskRepository, IUserRepository
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
 
-        var normalizedEmail = NormalizeEmail(email);
+        var normalizedEmail = User.NormalizeEmail(email);
 
         await _gate.WaitAsync(cancellationToken);
         try
@@ -443,20 +443,6 @@ public sealed class JsonRepository : ITaskRepository, IUserRepository
             File.Replace(tmp, path, destinationBackupFileName: null, ignoreMetadataErrors: true);
         else
             File.Move(tmp, path);
-    }
-
-
-
-    private static string NormalizeEmail(string email)
-    {
-
-        email = (email ?? string.Empty).Trim();
-
-        if (email.Length == 0)
-            return string.Empty;
-
-        return email.ToUpperInvariant();
-
     }
 
 }
