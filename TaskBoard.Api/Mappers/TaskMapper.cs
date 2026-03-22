@@ -30,6 +30,8 @@ public static class TaskMapper
 
         t.DueDate,
 
+        t.LastCheckedAt,
+
         t.Tags.Select(x => x.ToString()).ToList()
 
     );

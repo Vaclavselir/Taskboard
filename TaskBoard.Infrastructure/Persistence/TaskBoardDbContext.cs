@@ -82,6 +82,9 @@ public sealed class TaskBoardDbContext : DbContext
         b.Property(x => x.DueDate)
             .HasColumnType("datetime2(0)");
 
+        b.Property(x => x.LastCheckedAt)
+            .HasColumnType("datetime2(0)");
+
         b.Property(x => x.OwnerId)
             .HasMaxLength(32)
             .IsRequired();

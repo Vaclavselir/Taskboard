@@ -37,6 +37,9 @@ public sealed class TaskRecord
     [JsonPropertyName("updatedAt")]
     public DateTime? UpdatedAt { get; set; }
 
+    [JsonPropertyName("lastCheckedAt")]
+    public DateTime? LastCheckedAt { get; set; }
+
     [JsonPropertyName("tags")]
     public List<string> Tags { get; set; } = new();
 
