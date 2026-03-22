@@ -158,9 +158,9 @@
 
                                         @if (task.UpdatedAt.HasValue)
                                         {
-                                            <span>Upraveno: @task.UpdatedAt.Value.ToString("dd.MM.yyyy HH:mm")</span>
+                                            <span>Upraveno: @task.UpdatedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
                                         }
-                                        
+
                                         @if (task.Tags.Count > 0)
                                         {
                                             <span>@string.Join(", ", task.Tags)</span>
