@@ -153,7 +153,14 @@
                                                     Deadline: @task.DueDate.Value.ToString("dd.MM.yyyy")
                                             </span>
                                         }
+
                                         <span>Vytvořeno: @task.CreatedAt.ToString("dd.MM.yyyy")</span>
+
+                                        @if (task.UpdatedAt.HasValue)
+                                        {
+                                            <span>Upraveno: @task.UpdatedAt.Value.ToString("dd.MM.yyyy HH:mm")</span>
+                                        }
+                                        
                                         @if (task.Tags.Count > 0)
                                         {
                                             <span>@string.Join(", ", task.Tags)</span>

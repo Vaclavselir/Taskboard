@@ -26,6 +26,8 @@ public sealed class TaskItem
 
     public DateTime? DueDate {get; private set;}
 
+    public DateTime? UpdatedAt { get; private set; }
+
     public List<Tag> Tags { get; private set; }
 
 
@@ -54,11 +56,13 @@ public sealed class TaskItem
 
     }
 
-    public TaskItem(Guid id, string ownerId, string title, string? description, Priority priority, DateTime createdAt, DateTime? dueDate, IEnumerable<Tag>? tags = null)
+    public TaskItem(Guid id, string ownerId, string title, string? description, Priority priority, DateTime createdAt, DateTime? dueDate, IEnumerable<Tag>? tags = null, DateTime? updatedAt = null)
         : this(id, ownerId, title, description, priority, createdAt, dueDate)
     {
         if (tags is not null)
             Tags = tags.Distinct().ToList();
+        
+        UpdatedAt = updatedAt;
     }
 
 
@@ -113,6 +117,8 @@ public sealed class TaskItem
     }
 
     public void RemoveTag(Tag tag) => Tags.Remove(tag);
+
+    public void MarkUpdated() => UpdatedAt = DateTime.UtcNow;
 
 
 

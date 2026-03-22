@@ -18,6 +18,8 @@ public class TaskDto
 
     public DateTime CreatedAt { get; set; }
 
+    public DateTime? UpdatedAt { get; set; }
+
     public DateTime? DueDate { get; set; }
 
     public IReadOnlyList<string> Tags { get; set; } = [];

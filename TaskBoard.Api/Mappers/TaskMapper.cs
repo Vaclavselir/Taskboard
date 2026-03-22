@@ -26,6 +26,8 @@ public static class TaskMapper
 
         t.CreatedAt,
 
+        t.UpdatedAt,
+
         t.DueDate,
 
         t.Tags.Select(x => x.ToString()).ToList()

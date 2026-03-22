@@ -97,6 +97,7 @@ public sealed class Updatetask
 
         if (!changed) return false;
         
+        taskItem.MarkUpdated(); 
 
         _repo.Save();
         TaskUpdated?.Invoke(taskItem);

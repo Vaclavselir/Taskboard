@@ -301,6 +301,7 @@ public sealed class JsonRepository : ITaskRepository, IUserRepository
         Status = t.Status,
         Priority = t.Priority,
         CreatedAt = t.CreatedAt,
+        UpdatedAt = t.UpdatedAt,
         DueDate = t.DueDate,
         Tags = t.Tags.Select(x => x.Value).ToList()
 
@@ -325,7 +326,8 @@ public sealed class JsonRepository : ITaskRepository, IUserRepository
             priority: r.Priority,
             createdAt: r.CreatedAt,
             dueDate: r.DueDate,
-            tags: tags
+            tags: tags,
+            updatedAt: r.UpdatedAt
 
         );
 

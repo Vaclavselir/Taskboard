@@ -76,6 +76,9 @@ public sealed class TaskBoardDbContext : DbContext
             .HasColumnType("datetime2(0)")
             .IsRequired();
 
+        b.Property(x => x.UpdatedAt)
+            .HasColumnType("datetime2(0)");
+
         b.Property(x => x.DueDate)
             .HasColumnType("datetime2(0)");
 

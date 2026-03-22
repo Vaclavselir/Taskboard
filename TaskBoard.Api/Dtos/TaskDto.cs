@@ -23,6 +23,8 @@ public sealed record TaskDto
 
     DateTime CreatedAt,
 
+    DateTime? UpdatedAt,
+
     DateTime? DueDate,
     
     IReadOnlyList<string> Tags
