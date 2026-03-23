@@ -1,174 +1,466 @@
 /* ============================================
-   TaskBoard "Evergreen" Theme
+   TaskBoard — "Deep Forest" Theme
+   ============================================
+   Přírodní paleta inspirovaná lesem za úsvitu:
+   tmavý mech, ranní mlha, zlaté sluneční paprsky.
+   ============================================ */
+
+/* --- Google Fonts override (add to App.razor <head>) ---
+   REPLACE the existing Inter import with:
+   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+*/
+
+/* ============================================
+   1. DESIGN TOKENS
    ============================================ */
 
 :root {
-    --tb-canvas: #F8F7F4;
-    --tb-surface: #FFFFFF;
-    --tb-border: #E5E5E0;
-    --tb-text: #1A1A1A;
-    --tb-text-secondary: #6B7280;
-    --tb-text-muted: #9CA3AF;
+    /* Canvas & surfaces */
+    --tb-canvas:          #F2F0E8;
+    --tb-canvas-warm:     #EAE7DC;
+    --tb-surface:         #FFFFFF;
+    --tb-surface-raised:  #FAFAF6;
+    --tb-surface-sunken:  #EDEBE3;
 
-    --tb-primary: #2D7A4F;
-    --tb-primary-hover: #246840;
-    --tb-primary-light: #E8F5EC;
-    --tb-primary-ring: rgba(45, 122, 79, 0.25);
+    /* Borders */
+    --tb-border:          #D6D3C8;
+    --tb-border-subtle:   #E8E5DC;
 
-    --tb-danger: #DC3545;
-    --tb-danger-light: #FEF2F2;
+    /* Text */
+    --tb-text:            #1E2B22;
+    --tb-text-secondary:  #5A6B5E;
+    --tb-text-muted:      #8E998F;
+    --tb-text-inverse:    #F5F5F0;
 
-    --tb-radius: 8px;
-    --tb-radius-lg: 12px;
-    --tb-radius-pill: 100px;
+    /* Primary — forest green */
+    --tb-primary:         #3B7A57;
+    --tb-primary-hover:   #2E6147;
+    --tb-primary-active:  #245038;
+    --tb-primary-light:   #E6F2EB;
+    --tb-primary-ring:    rgba(59, 122, 87, 0.25);
+    --tb-primary-glow:    rgba(59, 122, 87, 0.12);
+
+    /* Accent — golden sunlight */
+    --tb-accent:          #C8963E;
+    --tb-accent-light:    #FDF6E8;
+    --tb-accent-text:     #7A5A1E;
+
+    /* Semantic */
+    --tb-success:         #2F8F5B;
+    --tb-success-light:   #E3F5EC;
+    --tb-success-text:    #1A5E38;
+
+    --tb-warning:         #D49E2A;
+    --tb-warning-light:   #FEF8E7;
+    --tb-warning-text:    #7A5A1E;
+
+    --tb-danger:          #C4473A;
+    --tb-danger-light:    #FDF0EE;
+    --tb-danger-text:     #842D23;
+
+    --tb-info:            #3A7CAD;
+    --tb-info-light:      #E8F2FA;
+    --tb-info-text:       #1E4F73;
+
+    /* Sidebar */
+    --tb-sidebar:         #162019;
+    --tb-sidebar-hover:   #1E2E23;
+    --tb-sidebar-active:  #2A4233;
+    --tb-sidebar-text:    #B8C9BC;
+    --tb-sidebar-border:  rgba(255, 255, 255, 0.06);
+
+    /* Radii */
+    --tb-radius-sm:       6px;
+    --tb-radius:          10px;
+    --tb-radius-lg:       14px;
+    --tb-radius-xl:       20px;
+    --tb-radius-pill:     100px;
+
+    /* Shadows */
+    --tb-shadow-xs:       0 1px 2px rgba(30, 43, 34, 0.04);
+    --tb-shadow-sm:       0 1px 3px rgba(30, 43, 34, 0.06), 0 1px 2px rgba(30, 43, 34, 0.04);
+    --tb-shadow-md:       0 4px 12px rgba(30, 43, 34, 0.07), 0 2px 4px rgba(30, 43, 34, 0.04);
+    --tb-shadow-lg:       0 8px 28px rgba(30, 43, 34, 0.10), 0 4px 8px rgba(30, 43, 34, 0.04);
+    --tb-shadow-glow:     0 0 20px rgba(59, 122, 87, 0.15);
+
+    /* Timing */
+    --tb-ease:            cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --tb-ease-bounce:     cubic-bezier(0.34, 1.56, 0.64, 1);
+    --tb-ease-out:        cubic-bezier(0.0, 0.0, 0.2, 1);
+    --tb-duration-fast:   0.15s;
+    --tb-duration:        0.25s;
+    --tb-duration-slow:   0.4s;
 }
 
-/* --- Base --- */
+
+/* ============================================
+   2. BASE & RESET
+   ============================================ */
 
 html, body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background-color: var(--tb-canvas);
     color: var(--tb-text);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
+    font-size: 15px;
 }
 
-*, *::before, *::after {
-    transition: background-color 0.15s ease,
-                border-color 0.15s ease,
-                box-shadow 0.15s ease,
-                color 0.15s ease,
-                opacity 0.15s ease;
+/* Subtle warm ambient light on body */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background:
+        radial-gradient(ellipse at 20% 0%, rgba(59, 122, 87, 0.03) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 100%, rgba(200, 150, 62, 0.03) 0%, transparent 60%);
 }
 
 ::selection {
-    background-color: #C6E7D1;
+    background-color: rgba(59, 122, 87, 0.18);
     color: var(--tb-text);
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 7px; height: 7px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #D4D4CF; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--tb-text-muted); }
+::-webkit-scrollbar-thumb {
+    background: var(--tb-border);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--tb-text-muted);
+}
 
 hr {
-    border-color: var(--tb-border);
+    border-color: var(--tb-border-subtle);
     opacity: 1;
 }
 
-/* --- Links --- */
+/* Global transition baseline */
+*, *::before, *::after {
+    transition-property: background-color, border-color, box-shadow, color, opacity, transform;
+    transition-duration: var(--tb-duration-fast);
+    transition-timing-function: var(--tb-ease);
+}
+
+
+/* ============================================
+   3. TYPOGRAPHY
+   ============================================ */
+
+h1, .h1 { font-weight: 700; letter-spacing: -0.02em; color: var(--tb-text); }
+h2, .h2 { font-weight: 700; letter-spacing: -0.015em; color: var(--tb-text); }
+h3, .h3 { font-weight: 600; letter-spacing: -0.01em; color: var(--tb-text); }
+h4, .h4 { font-weight: 600; color: var(--tb-text); }
+h5, .h5 { font-weight: 600; color: var(--tb-text); }
+h6, .h6 { font-weight: 600; font-size: 0.9375rem; color: var(--tb-text); }
+
+.text-muted { color: var(--tb-text-muted) !important; }
+.small, small { font-size: 0.8125rem; }
+
+
+/* ============================================
+   4. LINKS
+   ============================================ */
 
 a, .btn-link {
     color: var(--tb-primary);
+    text-decoration: none;
+    transition: color var(--tb-duration) var(--tb-ease);
 }
 
 a:hover, .btn-link:hover {
     color: var(--tb-primary-hover);
+    text-decoration: none;
 }
 
-/* --- Buttons --- */
 
-.btn-primary {
-    background-color: var(--tb-primary);
-    border-color: var(--tb-primary);
-    color: #fff;
-    border-radius: var(--tb-radius);
+/* ============================================
+   5. BUTTONS
+   ============================================ */
+
+.btn {
     font-weight: 600;
-    padding: 0.5rem 1.25rem;
+    border-radius: var(--tb-radius);
+    padding: 0.55rem 1.3rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.01em;
+    position: relative;
+    overflow: hidden;
+    transition:
+        background-color var(--tb-duration) var(--tb-ease),
+        border-color var(--tb-duration) var(--tb-ease),
+        box-shadow var(--tb-duration) var(--tb-ease),
+        color var(--tb-duration) var(--tb-ease),
+        transform var(--tb-duration-fast) var(--tb-ease);
+}
+
+/* Ripple flash on click */
+.btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.3) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+}
+
+.btn:active::after {
+    opacity: 1;
+    transition: opacity 0s;
+}
+
+/* Primary button */
+.btn-primary {
+    background: linear-gradient(135deg, var(--tb-primary) 0%, #327A50 60%, #2B6944 100%);
+    border: 1px solid var(--tb-primary);
+    color: #fff;
+    box-shadow: var(--tb-shadow-sm), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
 .btn-primary:hover, .btn-primary:focus-visible {
-    background-color: var(--tb-primary-hover);
+    background: linear-gradient(135deg, var(--tb-primary-hover) 0%, #2A6B44 60%, #225839 100%);
     border-color: var(--tb-primary-hover);
     color: #fff;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(45, 122, 79, 0.25);
+    transform: translateY(-2px);
+    box-shadow: var(--tb-shadow-md), 0 4px 16px rgba(59, 122, 87, 0.25);
 }
 
 .btn-primary:active {
-    background-color: var(--tb-primary-hover);
-    border-color: var(--tb-primary-hover);
     transform: translateY(0);
-    box-shadow: none;
+    box-shadow: var(--tb-shadow-xs);
+    background: var(--tb-primary-active);
 }
 
+/* Outline primary */
 .btn-outline-primary {
     color: var(--tb-primary);
-    border-color: var(--tb-primary);
+    border: 1.5px solid var(--tb-primary);
+    background: transparent;
     border-radius: var(--tb-radius);
 }
 
 .btn-outline-primary:hover, .btn-outline-primary:focus-visible {
     background-color: var(--tb-primary-light);
-    color: var(--tb-primary);
+    color: var(--tb-primary-hover);
     border-color: var(--tb-primary);
+    transform: translateY(-1px);
+    box-shadow: var(--tb-shadow-sm);
 }
 
+/* Outline secondary */
 .btn-outline-secondary {
     color: var(--tb-text-secondary);
-    border-color: var(--tb-border);
+    border: 1.5px solid var(--tb-border);
     border-radius: var(--tb-radius);
+    background: transparent;
 }
 
 .btn-outline-secondary:hover, .btn-outline-secondary:focus-visible {
-    background-color: #F3F4F6;
+    background-color: var(--tb-surface-sunken);
     color: var(--tb-text-secondary);
-    border-color: #D4D4CF;
+    border-color: var(--tb-border);
 }
 
+/* Outline danger */
 .btn-outline-danger {
     border-radius: var(--tb-radius);
+    border-color: var(--tb-danger);
+    color: var(--tb-danger);
 }
 
+.btn-outline-danger:hover, .btn-outline-danger:focus-visible {
+    background-color: var(--tb-danger-light);
+    color: var(--tb-danger-text);
+    border-color: var(--tb-danger);
+}
+
+/* Small buttons */
 .btn-sm {
-    border-radius: 6px;
-    padding: 0.3rem 0.75rem;
+    border-radius: var(--tb-radius-sm);
+    padding: 0.3rem 0.8rem;
     font-size: 0.8125rem;
 }
 
+/* Focus ring */
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus {
     box-shadow: 0 0 0 3px var(--tb-primary-ring);
 }
 
-/* --- Cards --- */
+
+/* ============================================
+   6. CARDS — the heart of TaskBoard
+   ============================================ */
 
 .card {
-    border: 1px solid var(--tb-border);
+    border: 1px solid var(--tb-border-subtle);
     border-radius: var(--tb-radius-lg);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--tb-shadow-xs);
     background: var(--tb-surface);
+    position: relative;
+    overflow: hidden;
+    transition:
+        box-shadow var(--tb-duration) var(--tb-ease),
+        border-color var(--tb-duration) var(--tb-ease),
+        transform var(--tb-duration) var(--tb-ease);
+}
+
+/* Animated left accent stripe on hover */
+.card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--tb-primary) 0%, var(--tb-accent) 100%);
+    border-radius: var(--tb-radius-lg) 0 0 var(--tb-radius-lg);
+    opacity: 0;
+    transform: scaleY(0.3);
+    transition:
+        opacity var(--tb-duration) var(--tb-ease),
+        transform var(--tb-duration-slow) var(--tb-ease-bounce);
 }
 
 .card:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border-color: #D4D4CF;
+    box-shadow: var(--tb-shadow-md);
+    border-color: var(--tb-border);
+    transform: translateY(-2px);
 }
 
-/* --- Forms --- */
+.card:hover::before {
+    opacity: 1;
+    transform: scaleY(1);
+}
+
+/* Card with danger border (delete confirm) */
+.card.border-danger {
+    border-color: var(--tb-danger) !important;
+    box-shadow: 0 0 0 2px var(--tb-danger-light);
+    animation: dangerShake 0.4s var(--tb-ease);
+}
+
+@keyframes dangerShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-4px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-2px); }
+    80% { transform: translateX(2px); }
+}
+
+
+/* ============================================
+   7. BADGES — soft natural tones
+   ============================================ */
+
+.badge {
+    border-radius: var(--tb-radius-pill);
+    font-weight: 600;
+    font-size: 0.6875rem;
+    padding: 0.3em 0.7em;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    transition:
+        transform var(--tb-duration-fast) var(--tb-ease),
+        box-shadow var(--tb-duration-fast) var(--tb-ease);
+}
+
+.badge:hover {
+    transform: scale(1.05);
+}
+
+/* Status badges */
+.bg-secondary {
+    background-color: var(--tb-surface-sunken) !important;
+    color: var(--tb-text-muted) !important;
+    border: 1px solid var(--tb-border-subtle);
+}
+
+.bg-primary {
+    background-color: var(--tb-primary-light) !important;
+    color: var(--tb-primary) !important;
+}
+
+.bg-success {
+    background-color: var(--tb-success-light) !important;
+    color: var(--tb-success-text) !important;
+    animation: completePulse 0.6s var(--tb-ease-bounce);
+}
+
+.bg-info {
+    background-color: var(--tb-info-light) !important;
+    color: var(--tb-info-text) !important;
+}
+
+.bg-warning {
+    background-color: var(--tb-warning-light) !important;
+    color: var(--tb-warning-text) !important;
+}
+
+.bg-danger {
+    background-color: var(--tb-danger-light) !important;
+    color: var(--tb-danger-text) !important;
+}
+
+@keyframes completePulse {
+    0% { transform: scale(1); box-shadow: none; }
+    40% { transform: scale(1.15); box-shadow: 0 0 12px rgba(47, 143, 91, 0.3); }
+    100% { transform: scale(1); box-shadow: none; }
+}
+
+
+/* ============================================
+   8. FORMS — earthy & tactile
+   ============================================ */
 
 .form-control, .form-select {
     border-radius: var(--tb-radius);
-    border-color: var(--tb-border);
-    padding: 0.6rem 0.875rem;
+    border: 1.5px solid var(--tb-border);
+    padding: 0.625rem 0.9rem;
     font-size: 0.875rem;
     background-color: var(--tb-surface);
+    color: var(--tb-text);
+    transition:
+        border-color var(--tb-duration) var(--tb-ease),
+        box-shadow var(--tb-duration) var(--tb-ease),
+        background-color var(--tb-duration) var(--tb-ease);
+}
+
+.form-control:hover, .form-select:hover {
+    border-color: var(--tb-text-muted);
 }
 
 .form-control:focus, .form-select:focus, .form-check-input:focus {
     border-color: var(--tb-primary);
-    box-shadow: 0 0 0 3px rgba(45, 122, 79, 0.15);
+    box-shadow: 0 0 0 3px var(--tb-primary-ring), var(--tb-shadow-glow);
+    background-color: var(--tb-surface);
     outline: none;
 }
 
-.form-label {
-    font-weight: 500;
-    font-size: 0.8125rem;
-    color: var(--tb-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    margin-bottom: 0.375rem;
+.form-control::placeholder {
+    color: var(--tb-text-muted);
+    opacity: 0.7;
 }
 
+.form-label {
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--tb-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+}
+
+.form-check-input:checked {
+    background-color: var(--tb-primary);
+    border-color: var(--tb-primary);
+}
+
+/* Validation */
 .valid.modified:not([type=checkbox]) {
     outline: none;
     border-color: var(--tb-primary);
@@ -177,82 +469,54 @@ a:hover, .btn-link:hover {
 .invalid {
     outline: none;
     border-color: var(--tb-danger);
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    box-shadow: 0 0 0 3px rgba(196, 71, 58, 0.1);
+    animation: invalidShake 0.35s var(--tb-ease);
+}
+
+@keyframes invalidShake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    50% { transform: translateX(3px); }
+    75% { transform: translateX(-2px); }
+    100% { transform: translateX(0); }
 }
 
 .validation-message {
     color: var(--tb-danger);
     font-size: 0.75rem;
     margin-top: 0.25rem;
+    animation: fadeSlideIn 0.25s var(--tb-ease-out);
 }
 
-/* --- Badges (soft pastel style) --- */
 
-.badge {
-    border-radius: var(--tb-radius-pill);
-    font-weight: 500;
-    font-size: 0.6875rem;
-    padding: 0.25em 0.625em;
-    letter-spacing: 0.02em;
-}
-
-.bg-secondary {
-    background-color: #F3F4F6 !important;
-    color: #6B7280 !important;
-}
-
-.bg-primary {
-    background-color: #E8F5EC !important;
-    color: #2D7A4F !important;
-}
-
-.bg-success {
-    background-color: #DCFCE7 !important;
-    color: #166534 !important;
-    animation: completePulse 0.6s ease-out;
-}
-
-.bg-info {
-    background-color: #E0F2FE !important;
-    color: #0369A1 !important;
-}
-
-.bg-warning {
-    background-color: #FEF3C7 !important;
-    color: #92400E !important;
-}
-
-.bg-danger {
-    background-color: #FEE2E2 !important;
-    color: #991B1B !important;
-}
-
-@keyframes completePulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.08); }
-    100% { transform: scale(1); }
-}
-
-/* --- Pagination --- */
+/* ============================================
+   9. PAGINATION
+   ============================================ */
 
 .page-link {
-    border-radius: var(--tb-radius);
+    border-radius: var(--tb-radius-sm);
     border: none;
     color: var(--tb-primary);
     margin: 0 2px;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.875rem;
+    transition:
+        background-color var(--tb-duration) var(--tb-ease),
+        color var(--tb-duration) var(--tb-ease),
+        transform var(--tb-duration-fast) var(--tb-ease);
 }
 
 .page-link:hover {
     background-color: var(--tb-primary-light);
     color: var(--tb-primary);
+    transform: translateY(-1px);
 }
 
 .page-item.active .page-link {
-    background-color: var(--tb-primary);
+    background: linear-gradient(135deg, var(--tb-primary), var(--tb-primary-hover));
     color: #fff;
     border-color: var(--tb-primary);
+    box-shadow: 0 2px 8px rgba(59, 122, 87, 0.25);
 }
 
 .page-item.disabled .page-link {
@@ -260,23 +524,77 @@ a:hover, .btn-link:hover {
     color: var(--tb-text-muted);
 }
 
-/* --- Alerts --- */
+
+/* ============================================
+   10. ALERTS
+   ============================================ */
 
 .alert-danger {
-    background-color: var(--tb-danger-light);
-    color: #991B1B;
+    background: linear-gradient(135deg, var(--tb-danger-light) 0%, #FDE8E5 100%);
+    color: var(--tb-danger-text);
     border: none;
     border-left: 4px solid var(--tb-danger);
     border-radius: var(--tb-radius);
+    animation: fadeSlideIn 0.3s var(--tb-ease-out);
 }
 
-/* --- Spinner --- */
+
+/* ============================================
+   11. SPINNER & LOADING
+   ============================================ */
 
 .spinner-border.text-primary {
     color: var(--tb-primary) !important;
+    animation: spin 0.8s linear infinite, fadeIn 0.3s var(--tb-ease-out);
 }
 
-/* --- Content area --- */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+
+/* ============================================
+   12. AUTH PAGES (login/register)
+   ============================================ */
+
+.row.justify-content-center.mt-5 .card {
+    border: none;
+    border-radius: var(--tb-radius-xl);
+    box-shadow: var(--tb-shadow-lg);
+    overflow: visible;
+    position: relative;
+}
+
+/* Animated gradient accent bar at top */
+.row.justify-content-center.mt-5 .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--tb-primary) 0%, var(--tb-accent) 50%, var(--tb-primary) 100%);
+    background-size: 200% 100%;
+    border-radius: var(--tb-radius-xl) var(--tb-radius-xl) 0 0;
+    animation: gradientShift 4s ease infinite;
+}
+
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.row.justify-content-center.mt-5 .card-title {
+    font-weight: 700;
+    color: var(--tb-text);
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+}
+
+
+/* ============================================
+   13. CONTENT AREA
+   ============================================ */
 
 .content {
     padding-top: 1.5rem;
@@ -286,31 +604,209 @@ h1:focus {
     outline: none;
 }
 
-/* --- Auth pages (login/register card) --- */
 
-.row.justify-content-center.mt-5 .card {
-    border-top: 3px solid var(--tb-primary);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+/* ============================================
+   14. EMPTY STATE
+   ============================================ */
+
+.text-center.py-5.text-muted {
+    animation: fadeSlideIn 0.5s var(--tb-ease-out);
 }
 
-.row.justify-content-center.mt-5 .card-title {
-    font-weight: 700;
-    color: var(--tb-text);
-    font-size: 1.5rem;
+.text-center.py-5.text-muted h5 {
+    color: var(--tb-text-secondary);
+    font-weight: 600;
 }
 
-/* --- Blazor error boundary --- */
+.text-center.py-5.text-muted p {
+    color: var(--tb-text-muted);
+}
+
+
+/* ============================================
+   15. TASK LIST — staggered entry animation
+   ============================================ */
+
+.d-flex.flex-column.gap-2 > .card {
+    animation: cardSlideIn 0.35s var(--tb-ease-out) both;
+}
+
+.d-flex.flex-column.gap-2 > .card:nth-child(1)  { animation-delay: 0.00s; }
+.d-flex.flex-column.gap-2 > .card:nth-child(2)  { animation-delay: 0.04s; }
+.d-flex.flex-column.gap-2 > .card:nth-child(3)  { animation-delay: 0.04s; }
+.d-flex.flex-column.gap-2 > .card:nth-child(4)  { animation-delay: 0.08s; }
+.d-flex.flex-column.gap-2 > .card:nth-child(5)  { animation-delay: 0.10s; }
+.d-flex.flex-column.gap-2 > .card:nth-child(6)  { animation-delay: 0.12s; }
+.d-flex.flex-column.gap-2 > .card:nth-child(7)  { animation-delay: 0.14s; }
+.d-flex.flex-column.gap-2 > .card:nth-child(8)  { animation-delay: 0.16s; }
+.d-flex.flex-column.gap-2 > .card:nth-child(9)  { animation-delay: 0.18s; }
+.d-flex.flex-column.gap-2 > .card:nth-child(10) { animation-delay: 0.20s; }
+
+@keyframes cardSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* ============================================
+   16. FILTER CARD (search/filter area)
+   ============================================ */
+
+.card.mb-4 {
+    background: var(--tb-surface-raised);
+    border: 1px solid var(--tb-border-subtle);
+    box-shadow: var(--tb-shadow-xs);
+}
+
+/* No lift on filter card */
+.card.mb-4:hover {
+    transform: none;
+}
+
+.card.mb-4::before {
+    display: none;
+}
+
+
+/* ============================================
+   17. TAG BADGES (filter tags)
+   ============================================ */
+
+.badge.bg-primary .btn-close {
+    filter: brightness(0) saturate(100%) invert(34%) sepia(16%) saturate(1100%) hue-rotate(93deg);
+}
+
+
+/* ============================================
+   18. "OVERDUE" BADGE — pulsing urgency
+   ============================================ */
+
+.d-flex.align-items-center.gap-2 .badge.bg-danger {
+    animation: overduePulse 2s ease-in-out infinite;
+}
+
+@keyframes overduePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+
+/* ============================================
+   19. GLOBAL ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeSlideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Page title entrance */
+.d-flex.justify-content-between.align-items-center.mb-4.mt-3 {
+    animation: fadeSlideIn 0.35s var(--tb-ease-out);
+}
+
+
+/* ============================================
+   20. "NEW TASK" BUTTON — shimmer on hover
+   ============================================ */
+
+a.btn.btn-primary[href="/tasks/create"] {
+    position: relative;
+    overflow: hidden;
+}
+
+a.btn.btn-primary[href="/tasks/create"]::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.08) 50%,
+        transparent 70%
+    );
+    transform: translateX(-100%) rotate(0deg);
+    transition: none;
+}
+
+a.btn.btn-primary[href="/tasks/create"]:hover::before {
+    animation: shimmer 0.8s var(--tb-ease) forwards;
+}
+
+@keyframes shimmer {
+    to { transform: translateX(100%) rotate(0deg); }
+}
+
+
+/* ============================================
+   21. PROGRESS INDICATION (task count bar)
+   ============================================ */
+
+.text-muted.small {
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* ============================================
+   22. BLAZOR ERROR BOUNDARY
+   ============================================ */
 
 .blazor-error-boundary {
-    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, #b32121;
+    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, var(--tb-danger);
     padding: 1rem 1rem 1rem 3.7rem;
     color: white;
+    border-radius: var(--tb-radius);
+    animation: fadeSlideIn 0.3s var(--tb-ease-out);
 }
 
 .blazor-error-boundary::after {
-    content: "An error has occurred."
+    content: "Došlo k neočekávané chybě.";
 }
 
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
+}
+
+
+/* ============================================
+   23. REDUCED MOTION — respect user prefs
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }

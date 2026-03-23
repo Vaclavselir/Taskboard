@@ -1,3 +1,7 @@
+/* ============================================
+   MainLayout — Deep Forest Theme
+   ============================================ */
+
 .page {
     position: relative;
     display: flex;
@@ -6,16 +10,29 @@
 
 main {
     flex: 1;
-    background-color: #F8F7F4;
+    background-color: var(--tb-canvas, #F2F0E8);
+    min-height: 100vh;
 }
 
 .sidebar {
-    background-color: #1B2B1F;
+    background: linear-gradient(180deg, #162019 0%, #1A2A1F 40%, #152118 100%);
+    position: relative;
+}
+
+/* Subtle ambient light on sidebar */
+.sidebar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 30% 20%, rgba(59, 122, 87, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(200, 150, 62, 0.03) 0%, transparent 50%);
+    pointer-events: none;
 }
 
 .top-row {
-    background-color: #F8F7F4;
-    border-bottom: 1px solid #E5E5E0;
+    background-color: var(--tb-canvas, #F2F0E8);
+    border-bottom: 1px solid var(--tb-border-subtle, #E8E5DC);
     justify-content: flex-end;
     height: 3.5rem;
     display: flex;
@@ -26,14 +43,15 @@ main {
         white-space: nowrap;
         margin-left: 1.5rem;
         text-decoration: none;
-        color: #6B7280;
+        color: var(--tb-text-muted, #8E998F);
         font-size: 0.8125rem;
         font-weight: 500;
+        transition: color 0.2s ease;
     }
 
     .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
         text-decoration: none;
-        color: #2D7A4F;
+        color: var(--tb-primary, #3B7A57);
     }
 
     .top-row ::deep a:first-child {
@@ -57,7 +75,7 @@ main {
     }
 
     .sidebar {
-        width: 240px;
+        width: 250px;
         height: 100vh;
         position: sticky;
         top: 0;
@@ -67,6 +85,8 @@ main {
         position: sticky;
         top: 0;
         z-index: 1;
+        backdrop-filter: blur(8px);
+        background-color: rgba(242, 240, 232, 0.85);
     }
 
     .top-row.auth ::deep a:first-child {
@@ -81,6 +101,7 @@ main {
     }
 }
 
+/* Blazor error UI */
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;
