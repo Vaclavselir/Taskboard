@@ -7,7 +7,14 @@
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">TaskBoard</a>
+        <a class="navbar-brand" href="">
+            <span style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#2D8C50,#1A6B38);display:inline-flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(45,140,80,0.2);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#E8EDE9" style="display:block;">
+                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                </svg>
+            </span>
+            TaskBoard
+        </a>
     </div>
 </div>
 
@@ -19,6 +26,10 @@
         <AuthorizeView>
 
             <Authorized>
+
+                <div style="font-size:0.5625rem;color:rgba(232,237,233,0.2);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:1rem 1.5rem 0.25rem;">
+                    Navigace
+                </div>
 
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="tasks" Match="NavLinkMatch.All">
@@ -32,18 +43,23 @@
                     </NavLink>
                 </div>
 
-                <div class="nav-item px-3">
-                    <span class="nav-link text-light small">
-                        @context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
-                    </span>
-                </div>
+                <div style="flex:1;"></div>
 
-                <div class="nav-item px-3">
-                    <button class="nav-link btn btn-link text-warning small" @onclick="Logout">
-                        Odhlásit se
-                    </button>
+                <div style="padding:0.875rem 1.25rem;border-top:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:0.625rem;">
+                    <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#2D8C50,#C8963E);display:flex;align-items:center;justify-content:center;font-size:0.625rem;font-weight:700;color:#fff;flex-shrink:0;">
+                        @GetInitials(context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value)
+                    </div>
+                    <div style="overflow:hidden;">
+                        <div style="font-size:0.75rem;font-weight:600;color:#E8EDE9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                            @context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                        </div>
+                        <button class="nav-link btn btn-link" 
+                                style="font-size:0.6875rem;color:#C8963E;padding:0;height:auto;line-height:1.2;margin:0;" 
+                                @onclick="Logout">
+                            Odhlásit se
+                        </button>
+                    </div>
                 </div>
-
 
             </Authorized>
 
@@ -60,10 +76,8 @@
                         <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Registrace
                     </NavLink>
                 </div>
-                
-            </NotAuthorized>
 
-            
+            </NotAuthorized>
 
         </AuthorizeView>
 
@@ -76,5 +90,13 @@
     {
         AuthStateService.MarkUserAsLoggedOut();
         Navigation.NavigateTo("/login");
+    }
+
+    private static string GetInitials(string? email)
+    {
+        if (string.IsNullOrWhiteSpace(email)) return "?";
+        var name = email.Split('@')[0];
+        if (name.Length >= 2) return name[..2].ToUpper();
+        return name.ToUpper();
     }
 }
