@@ -6,15 +6,16 @@
 
 main {
     flex: 1;
+    background-color: #F8F7F4;
 }
 
 .sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+    background-color: #1B2B1F;
 }
 
 .top-row {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
+    background-color: #F8F7F4;
+    border-bottom: 1px solid #E5E5E0;
     justify-content: flex-end;
     height: 3.5rem;
     display: flex;
@@ -25,10 +26,14 @@ main {
         white-space: nowrap;
         margin-left: 1.5rem;
         text-decoration: none;
+        color: #6B7280;
+        font-size: 0.8125rem;
+        font-weight: 500;
     }
 
     .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
-        text-decoration: underline;
+        text-decoration: none;
+        color: #2D7A4F;
     }
 
     .top-row ::deep a:first-child {
@@ -52,7 +57,7 @@ main {
     }
 
     .sidebar {
-        width: 250px;
+        width: 240px;
         height: 100vh;
         position: sticky;
         top: 0;
@@ -72,7 +77,7 @@ main {
 
     .top-row, article {
         padding-left: 2rem !important;
-        padding-right: 1.5rem !important;
+        padding-right: 2rem !important;
     }
 }
 
