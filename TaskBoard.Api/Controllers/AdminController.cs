@@ -23,7 +23,7 @@ public sealed class AdminController : ControllerBase
         var tasks = _repo.GetAll();
 
         var dtoList = tasks
-            .Select(t => t.ToDto())
+            .Select(t => t.ToAdminDto())
             .ToList();
 
         return Ok(dtoList);

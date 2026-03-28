@@ -36,9 +36,11 @@ builder.Services.AddTaskBoardStorage(builder.Configuration, builder.Environment.
 builder.Services.AddScoped<CreateTask>();
 builder.Services.AddScoped<DeleteTask>();
 builder.Services.AddScoped<Updatetask>();
+builder.Services.AddScoped<AdminSeeder>();
 builder.Services.AddScoped<IAuth, AuthService>();
 builder.Services.AddScoped<IJwtToken, JwtTokenService>();
 builder.Services.AddScoped<IHasher, HasherAdapter>();
+
 
 builder.Services.Configure<KeyOptions>(builder.Configuration.GetSection(KeyOptions.SectionName));
 
@@ -57,8 +59,10 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        
         options.TokenValidationParameters = new TokenValidationParameters
         {
+            
             ValidateIssuer = true,
             ValidIssuer = jwtOptions.Issuer,
 
@@ -71,7 +75,9 @@ builder.Services
 
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
+
         };
+
     });
 
 builder.Services.AddAuthorization();
@@ -137,6 +143,15 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+
+    var seeder = scope.ServiceProvider.GetRequiredService<AdminSeeder>();
+
+    await seeder.SeedAsync();
+
+}
 
 if (app.Environment.IsDevelopment())
 {
