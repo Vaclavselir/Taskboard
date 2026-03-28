@@ -1,0 +1,136 @@
+﻿@page "/admin"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+@using TaskBoard.UI.Models.Admin
+@using TaskBoard.UI.Services.Api
+@using Microsoft.JSInterop
+
+@inject AdminClient AdminClient
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+<AuthorizeView Roles="Admin">
+
+    <Authorized>
+
+        <PageTitle>Admin — Export tasků</PageTitle>
+
+        <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
+            <h3 class="mb-0">Admin — Všechny tasky</h3>
+            <button class="btn btn-success" @onclick="ExportCsv" disabled="@_isExportDisabled">
+                ⬇ Exportovat CSV
+            </button>
+        </div>
+
+        @if (_isLoading)
+        {
+            <div class="d-flex justify-content-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Načítání...</span>
+                </div>
+            </div>
+        }
+        else if (_error is not null)
+        {
+            <div class="alert alert-danger">@_error</div>
+        }
+        else if (_tasks is not null)
+        {
+            <p class="text-muted">Celkem tasků: <strong>@_tasks.Count</strong></p>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-sm">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Název</th>
+                            <th>Priorita</th>
+                            <th>Status</th>
+                            <th>Due date</th>
+                            <th>Tagy</th>
+                            <th>Owner ID</th>
+                            <th>Vytvořen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (AdminTaskDto task in _tasks)
+                        {
+                            <tr class="@(task.IsOverdue ? "table-danger" : "")">
+                                <td>@task.Title</td>
+                                <td>@task.Priority</td>
+                                <td>@task.Status</td>
+                                <td>@(task.DueDate?.ToLocalTime().ToString("d. M. yyyy") ?? "—")</td>
+                                <td>@(task.Tags.Any() ? string.Join(", ", task.Tags) : "—")</td>
+                                <td><code class="small">@task.OwnerId</code></td>
+                                <td>@task.CreatedAt.ToLocalTime().ToString("d. M. yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+    </Authorized>
+
+    <NotAuthorized>
+        @{ Navigation.NavigateTo("/"); }
+    </NotAuthorized>
+
+</AuthorizeView>
+
+@code {
+
+    private List<AdminTaskDto>? _tasks;
+    private bool _isLoading = true;
+    private string? _error;
+    private bool _isExportDisabled => _tasks is null || _isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        try
+        {
+
+            _tasks = await AdminClient.GetAllTasksAsync();
+
+        }
+        catch (Exception ex)
+        {
+
+            _error = $"Nepodařilo se načíst data: {ex.Message}";
+
+        }
+        finally
+        {
+
+            _isLoading = false;
+
+        }
+
+    }
+
+    private async Task ExportCsv()
+    {
+
+        if (_tasks is null) return;
+
+        System.Text.StringBuilder? sb = new System.Text.StringBuilder();
+        sb.AppendLine(value: "Id,OwnerId,Title,Priority,Status,DueDate,Tags,CreatedAt");
+
+        foreach (AdminTaskDto t in _tasks)
+        {
+
+            string? tags = string.Join("|", t.Tags);
+            string? title = t.Title.Replace("\"", "\"\"");
+            string? dueDate = t.DueDate?.ToLocalTime().ToString("yyyy-MM-dd") ?? "";
+            string? createdAt = t.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd");
+
+            sb.AppendLine(handler: $"\"{t.Id}\",\"{t.OwnerId}\",\"{title}\",\"{t.Priority}\",\"{t.Status}\",\"{dueDate}\",\"{tags}\",\"{createdAt}\"");
+
+        }
+
+        string? base64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(sb.ToString()));
+        await JS.InvokeVoidAsync(identifier: "downloadFileFromBase64", "tasks-export.csv", "text/csv;charset=utf-8", base64);
+
+    }
+
+}

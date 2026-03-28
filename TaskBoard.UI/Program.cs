@@ -24,6 +24,9 @@ builder.Services.AddHttpClient<AuthClient>(c =>
 
 builder.Services.AddHttpClient<TasksClient>(c =>
     c.BaseAddress = new Uri(apiBase));
+
+builder.Services.AddHttpClient<AdminClient>(c =>
+    c.BaseAddress = new Uri(apiBase));
     
 
 var app = builder.Build();
