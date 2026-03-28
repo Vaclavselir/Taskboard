@@ -27,7 +27,8 @@
             {
                 <p>
                     @{
-                        int doing = _result.Items.Count(t => t.Status == nameof(Status.Doing));
+                        int done    = _result.Items.Count(t => t.Status == "done");
+                        int doing   = _result.Items.Count(t => t.Status == "doing");
                         int overdue = _result.Items.Count(t => t.IsOverdue);
                     }
                     @if (doing > 0 || overdue > 0)
@@ -47,11 +48,11 @@
         {
             <div class="stat-grid">
                 <div class="stat-card stat-green">
-                    <div class="stat-number green">@_result.Items.Count(t => t.Status == nameof(Status.Done))</div>
+                    <div class="stat-number green">@_result.Items.Count(t => t.Status == "done")</div>
                     <div class="stat-label">Dokončeno</div>
                 </div>
                 <div class="stat-card stat-gold">
-                    <div class="stat-number gold">@_result.Items.Count(t => t.Status == nameof(Status.Doing))</div>
+                    <div class="stat-number gold">@_result.Items.Count(t => t.Status == "doing")</div>
                     <div class="stat-label">Rozpracováno</div>
                 </div>
                 <div class="stat-card stat-red">

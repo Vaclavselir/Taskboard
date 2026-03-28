@@ -365,6 +365,7 @@ a:hover, .btn-link:hover {
    ============================================ */
 
 .form-control, .form-select {
+    color-scheme: dark;
     border-radius: var(--tb-radius);
     border: 1px solid var(--tb-surface-border);
     padding: 0.625rem 0.9rem;
@@ -375,6 +376,11 @@ a:hover, .btn-link:hover {
 
 .form-control:hover, .form-select:hover {
     border-color: rgba(255,255,255,0.1);
+}
+
+.form-select option {
+    background-color: #131F17;
+    color: var(--tb-text);
 }
 
 .form-control:focus, .form-select:focus, .form-check-input:focus {
@@ -759,3 +765,34 @@ body::before {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* ============================================
+   24. ADMIN TABLE
+   ============================================ */
+
+.table {
+    color: var(--tb-text);
+    border-color: var(--tb-surface-border);
+}
+
+.table > :not(caption) > * > * {
+    border-bottom-color: rgba(255,255,255,0.04);
+    background-color: transparent;
+    color: var(--tb-text);
+}
+
+.table-hover > tbody > tr:hover > * {
+    background-color: rgba(255,255,255,0.04);
+    color: var(--tb-text);
+}
+
+.table-danger > td,
+.table-danger > th,
+tr.table-danger > td,
+tr.table-danger > th {
+    --bs-table-bg: transparent;
+    background-color: rgba(196, 71, 58, 0.15) !important;
+    color: var(--tb-text) !important;
+    border-color: rgba(196, 71, 58, 0.2) !important;
+}
+
