@@ -18,6 +18,10 @@ public sealed class CreateTaskTest
 
     private readonly Mock<IGeneratorId> _idsMock  = new();
 
+    public CreateTaskTest()
+    {
+        _idsMock.Setup(g => g.NewGuid()).Returns(Guid.NewGuid());
+    }
 
     private CreateTask CreateSut() => new(_repoMock.Object, _timeMock.Object, _idsMock.Object);
 
