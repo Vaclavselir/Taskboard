@@ -20,9 +20,7 @@ namespace TaskBoard.Tests.Application.Services;
 /// </summary>
 public sealed class UpdateTaskTests
 {
-    // ───────────────────────────────────────────────
-    //  Společný setup — DRY příprava pro každý test
-    // ───────────────────────────────────────────────
+
 
     private const string OwnerId = "owner-1";
 
@@ -75,11 +73,6 @@ public sealed class UpdateTaskTests
         return task;
 
     }
-
-
-    // ═══════════════════════════════════════════════
-    //  1) VALIDACE VSTUPŮ
-    // ═══════════════════════════════════════════════
 
     [Theory]
     [InlineData(null)]
@@ -156,11 +149,6 @@ public sealed class UpdateTaskTests
         act.Should().Throw<ArgumentException>().WithParameterName("newDueDate");
 
     }
-
-
-    // ═══════════════════════════════════════════════
-    //  2) ÚSPĚŠNÉ ÚPRAVY JEDNOTLIVÝCH POLÍ
-    // ═══════════════════════════════════════════════
 
     [Fact]
     public void Update_NewTitle_ChangesTitle_ReturnsTrue()
@@ -248,11 +236,6 @@ public sealed class UpdateTaskTests
 
     }
 
-
-    // ═══════════════════════════════════════════════
-    //  3) DETEKCE "BEZE ZMĚNY" — vrací false
-    // ═══════════════════════════════════════════════
-
     [Fact]
     public void Update_AllParametersNull_ReturnsFalse_DoesNotSave()
     {
@@ -313,11 +296,6 @@ public sealed class UpdateTaskTests
 
     }
 
-
-    // ═══════════════════════════════════════════════
-    //  4) DOMÉNOVÉ VÝJIMKY
-    // ═══════════════════════════════════════════════
-
     [Fact]
     public void Update_InvalidStatusTransition_ThrowsConflictException()
     {
@@ -329,11 +307,6 @@ public sealed class UpdateTaskTests
 
         act.Should().Throw<ConflictException>();
     }
-
-
-    // ═══════════════════════════════════════════════
-    //  5) KOMBINOVANÉ ZMĚNY
-    // ═══════════════════════════════════════════════
 
     [Fact]
     public void Update_MultipleFields_ChangesAll_ReturnsTrue()
@@ -369,11 +342,6 @@ public sealed class UpdateTaskTests
 
     }
 
-
-    // ═══════════════════════════════════════════════
-    //  6) EVENT TaskUpdated
-    // ═══════════════════════════════════════════════
-
     [Fact]
     public void Update_WhenChanged_FiresTaskUpdatedEvent()
     {
@@ -408,11 +376,6 @@ public sealed class UpdateTaskTests
 
     }
 
-
-    // ═══════════════════════════════════════════════
-    //  7) MarkUpdated se zavolá při změně
-    // ═══════════════════════════════════════════════
-
     [Fact]
     public void Update_WhenChanged_SetsUpdatedAt()
     {
@@ -430,4 +393,5 @@ public sealed class UpdateTaskTests
         task.UpdatedAt!.Value.Should().BeOnOrAfter(before);
 
     }
+    
 }

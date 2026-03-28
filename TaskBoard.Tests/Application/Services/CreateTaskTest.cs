@@ -80,11 +80,77 @@ public sealed class CreateTaskTest
         _repoMock.Setup(r => r.Add(It.IsAny<TaskItem>())).Callback<TaskItem>(t => captured = t);
 
         var sut = CreateSut();
+        sut.Create(OwnerId, cmd);
 
         captured.Should().NotBeNull();
         captured!.CreatedAt.Should().Be(fixedTime);
 
         _repoMock.Verify(r => r.Save(), Times.Once);
+
+    }
+
+    [Fact]
+    public void Create_ValidInput_SetsCorrectPriority()
+    {
+
+        TaskItem? captured = null;
+        _repoMock.Setup(r => r.Add(It.IsAny<TaskItem>())).Callback<TaskItem>(t => captured = t);
+
+        var sut = CreateSut();
+        sut.Create(OwnerId, cmd);
+
+        captured.Should().NotBeNull();
+        captured!.Priority.Should().Be(Priority.High);
+
+    }
+
+    [Fact]
+    public void Create_ValidInput_SetsCorrectTags()
+    {
+
+        TaskItem? captured = null;
+        _repoMock.Setup(r => r.Add(It.IsAny<TaskItem>())).Callback<TaskItem>(t => captured = t);
+
+        var sut = CreateSut();
+        sut.Create(OwnerId, cmd);
+
+        captured.Should().NotBeNull();
+        captured!.Tags.Select(t => t.Value).Should().BeEquivalentTo("csharp", "testing");
+
+    }
+
+    [Fact]
+    public void Create_ValidInput_StatusIsTodo()
+    {
+
+        TaskItem? captured = null;
+        _repoMock.Setup(r => r.Add(It.IsAny<TaskItem>())).Callback<TaskItem>(t => captured = t);
+
+        var sut = CreateSut();
+        sut.Create(OwnerId, cmd);
+
+        captured.Should().NotBeNull();
+        captured!.Status.Should().Be(Status.Todo);
+
+    }
+
+    [Fact]
+    public void Create_TitleTooShort_ThrowsArgumentException()
+    {
+
+        var badCmd = new TaskCommand(
+            Title: "AB",
+            Description: null,
+            Priority: Priority.Low,
+            DueDate: null,
+            Tags: null
+        );
+
+        var sut = CreateSut();
+
+        var act = () => sut.Create(OwnerId, badCmd);
+
+        act.Should().Throw<ArgumentException>();
 
     }
 
