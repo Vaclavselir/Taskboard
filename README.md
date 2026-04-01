@@ -4,7 +4,7 @@
 
 <h3>A full-stack task management app built with .NET 8</h3>
 
-<p><em>Clean architecture · REST API · Blazor Server · Bioluminescent dark theme</em></p>
+<p><em>Clean architecture · REST API · Blazor Server · Still in progress</em></p>
 
 <br>
 
