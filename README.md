@@ -47,7 +47,11 @@ cd Taskboard
 ### 2️⃣ Set up user secrets
 
 > [!IMPORTANT]
+<<<<<<< HEAD
 > Sensitive values (JWT key, admin credentials, API key, database connection string) are **never stored in the repository**. You must configure them via `dotnet user-secrets` before running the app.
+=======
+> Sensitive values (JWT key, admin credentials, API key) are **never stored in the repository**. You must configure them via `dotnet user-secrets` before running the app.
+>>>>>>> b2f59e1aa5f47cae19b7ac4e761eb5a1a69d4d96
 
 **API project:**
 
@@ -59,6 +63,7 @@ dotnet user-secrets set "Jwt:SecretKey" "your-secret-key-at-least-32-characters-
 
 # API key for admin endpoints
 dotnet user-secrets set "Security:ApiKey" "your-admin-api-key"
+<<<<<<< HEAD
 
 # Database connection string (only needed if using SQL storage)
 dotnet user-secrets set "ConnectionStrings:dbTaskBoard" "Server=YOUR_SERVER_NAME\\SQLEXPRESS;Database=dbTaskBoard;Trusted_Connection=True;TrustServerCertificate=True"
@@ -66,6 +71,10 @@ dotnet user-secrets set "ConnectionStrings:dbTaskBoard" "Server=YOUR_SERVER_NAME
 
 Replace `YOUR_SERVER_NAME\\SQLEXPRESS` with your actual SQL Server instance name (e.g. `localhost\\SQLEXPRESS`, `.\\SQLEXPRESS`, or just `.` for the default instance).
 
+=======
+```
+
+>>>>>>> b2f59e1aa5f47cae19b7ac4e761eb5a1a69d4d96
 **Admin account** — the app seeds a default admin user on startup. To configure the admin credentials:
 
 ```bash
@@ -74,7 +83,11 @@ dotnet user-secrets set "AdminAccount:Password" "YourAdminPassword123!"
 ```
 
 > [!NOTE]
+<<<<<<< HEAD
 > If admin secrets are missing, the app still starts normally — it just skips admin seeding and logs a warning. The connection string is only needed when using SQL storage (see step 3).
+=======
+> If these secrets are missing, the app still starts normally — it just skips admin seeding and logs a warning.
+>>>>>>> b2f59e1aa5f47cae19b7ac4e761eb5a1a69d4d96
 
 **UI project** (needs the same API key for the admin export page):
 
@@ -113,10 +126,27 @@ The app supports two storage backends. Open `TaskBoard.Api/appsettings.json` and
 
 <br>
 
+<<<<<<< HEAD
 > [!NOTE]
 > The database connection string is configured via user-secrets (step 2). Make sure you've set `ConnectionStrings:dbTaskBoard` with your actual server name before proceeding.
 
 Apply the database migrations:
+=======
+> [!WARNING]
+> The default connection string points to a local SQL Server Express instance. You **must** change it to match your own server.
+
+Open `TaskBoard.Api/appsettings.json` and update:
+
+```json
+"ConnectionStrings": {
+  "dbTaskBoard": "Server=YOUR_SERVER_NAME\\SQLEXPRESS;Database=dbTaskBoard;Trusted_Connection=True;TrustServerCertificate=True"
+}
+```
+
+Replace `YOUR_SERVER_NAME\\SQLEXPRESS` with your actual SQL Server instance name — for example `localhost\\SQLEXPRESS`, `.\\SQLEXPRESS`, or just `.` if you're using the default instance.
+
+Then apply the database migrations:
+>>>>>>> b2f59e1aa5f47cae19b7ac4e761eb5a1a69d4d96
 
 ```bash
 cd TaskBoard.Api
@@ -362,7 +392,11 @@ The JSON repository uses `SemaphoreSlim` for thread safety, since multiple reque
 - **JWT Bearer authentication** — tokens include user ID and role claims. User endpoints require a valid token; the admin role-check endpoint uses `[Authorize(Roles = "Admin")]`.
 - **API Key middleware** — the `/api/admin/*` routes are protected by `KeyMiddleware`, which uses `CryptographicOperations.FixedTimeEquals` for constant-time comparison (prevents timing attacks).
 - **Admin seeder** — on startup, the app checks for `AdminAccount:Email` and `AdminAccount:Password` in configuration. If present and no admin exists yet, it creates one.
+<<<<<<< HEAD
 - **No secrets in the repo** — JWT keys, API keys, admin credentials, and the database connection string are all managed via `dotnet user-secrets`.
+=======
+- **No secrets in the repo** — JWT keys, API keys, and admin credentials are all managed via `dotnet user-secrets`.
+>>>>>>> b2f59e1aa5f47cae19b7ac4e761eb5a1a69d4d96
 
 </details>
 
@@ -402,4 +436,8 @@ Blazor Server runs over a persistent SignalR connection (called a "circuit"). Th
 
 <br>
 
+<<<<<<< HEAD
 </div>
+=======
+</div>
+>>>>>>> b2f59e1aa5f47cae19b7ac4e761eb5a1a69d4d96
