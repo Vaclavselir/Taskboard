@@ -398,7 +398,7 @@ Blazor Server runs over a persistent SignalR connection (called a "circuit"). Th
 
 <br>
 
-<em>Built as a .NET developer assignment · 2025</em>
+<em>Built as a .NET developer assignment · 2025 © Václav Šelíř</em>
 
 <br>
 
